@@ -170,7 +170,10 @@
             localStorage.setItem('sk_logged_phone', user.phone);
             document.getElementById('authPage').classList.remove('active');
             document.getElementById('dashPage').classList.add('active');
-            document.getElementById('refLinkText').innerText = `https://safekw.ao/reg?ref=${user.phone}`;
+            
+            // LINK DE CONVITE ATUALIZADO PARA GITHUB PAGES
+            document.getElementById('refLinkText').innerText = `https://safekwanzakz.github.io/AO2026/index.html?ref=${user.phone}`;
+            
             updateUI();
             setInterval(() => {
                 if(user.dailyIncome > 0) {
@@ -183,32 +186,22 @@
             }, 1000);
         }
 
-        // --- FUNÇÃO DE UPGRADE COM REEMBOLSO ---
         function upgradeVip(id) {
             const vip = VIP_DATA.find(v => v.id === id);
-            
-            // 1. Se o usuário já tiver um VIP, devolve o valor do VIP antigo para o saldo antes da nova compra
             if (user.vipPrice > 0) {
                 user.balance += user.vipPrice;
                 showMsg(`REEMBOLSO DE ${user.vipPrice.toLocaleString()} Kz APLICADO!`, false);
             }
-
-            // 2. Verifica se agora ele tem saldo suficiente para o novo VIP
             if(user.balance < vip.price) {
-                // Se não tiver saldo após o reembolso, desfaz a adição do reembolso (opcional, mas seguro)
                 if(user.vipPrice > 0) user.balance -= user.vipPrice;
                 return showMsg("SALDO INSUFICIENTE PARA ESTE VIP");
             }
-
-            // 3. Aplica a nova compra
             user.balance -= vip.price; 
             user.vipPrice = vip.price; 
             user.dailyIncome = vip.income; 
             user.lastUpdate = Date.now();
-
             if(!user.history) user.history = {};
             user.history["v"+Date.now()] = {type: `Upgrade ${vip.name}`, val: vip.price, date: new Date().toLocaleString(), status: 'ATIVO'};
-            
             saveCloud(); 
             updateUI(); 
             showMsg(`UPGRADE PARA ${vip.name} CONCLUÍDO!`, false);
@@ -257,3 +250,4 @@
     </script>
 </body>
                         </html>
+                
