@@ -3,203 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GITHUB - ADMIN MASTER</title>
+    <title>MASTER ADMIN | GITHUB</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background: #070b14; color: white; font-family: sans-serif; }
-        .card-adm { background: #0f172a; border: 1px solid #1e293b; border-radius: 1rem; }
-        .input-adm { background: #1e293b; border: 1px solid #334155; color: white; border-radius: 0.5rem; outline: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
+        body { font-family: 'Roboto Mono', monospace; background: #020617; color: #e2e8f0; }
+        .admin-glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .input-master { background: #1e293b; border: 1px solid #334155; color: white; padding: 12px; border-radius: 6px; outline: none; transition: 0.3s; }
+        .input-master:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+        .btn-action { transition: 0.2s; cursor: pointer; text-transform: uppercase; font-weight: bold; font-size: 11px; }
+        .btn-action:active { transform: scale(0.95); }
         .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
-<body class="p-4 pb-20">
-    <div id="login-screen" class="fixed inset-0 bg-[#070b14] flex flex-col items-center justify-center z-[100] p-6">
-        <i class="fab fa-github text-6xl text-blue-500 mb-4"></i>
-        <h2 class="text-xl font-black mb-6 italic">ACESSO MASTER</h2>
-        <input type="password" id="admin-key" placeholder="Chave ABS..." class="w-full max-w-xs p-4 input-adm text-center mb-4">
-        <button onclick="checkAccess()" class="w-full max-w-xs bg-blue-600 py-4 rounded-xl font-black">ENTRAR</button>
+<body class="p-4 md:p-8">
+
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center">
+        <div class="admin-glass p-10 rounded-2xl w-full max-w-md text-center">
+            <div class="mb-6"><i class="fas fa-terminal text-5xl text-blue-500"></i></div>
+            <h1 class="text-xl font-bold mb-6 tracking-tighter">SISTEMA DE GESTÃO GITHUB</h1>
+            <input type="password" id="master-key" placeholder="INSIRA A CHAVE MASTER" class="input-master w-full text-center mb-4">
+            <button onclick="acessarSistema()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-lg font-bold btn-action">Autenticar</button>
+        </div>
     </div>
 
-    <div id="admin-content" class="hidden">
-        <div class="flex justify-between items-start mb-6">
-            <div>
-                <h1 class="text-2xl font-black text-blue-500 italic">GITHUB CONTROL</h1>
-                <p class="text-[10px] font-bold text-slate-500 uppercase">Inscritos Total: <span id="total-users" class="text-white">0</span></p>
+    <div id="main-panel" class="hidden">
+        <header class="admin-glass p-4 rounded-xl mb-6 flex flex-col md:flex-row gap-4 items-center justify-between sticky top-0 z-50">
+            <div class="flex items-center gap-4">
+                <i class="fab fa-github text-3xl"></i>
+                <span class="font-black text-blue-500 uppercase text-xs">Admin Master</span>
             </div>
-            <button onclick="location.reload()" class="bg-red-500/20 text-red-500 text-[10px] px-3 py-2 rounded-lg font-black border border-red-500/30">LIMPAR CACHE</button>
-        </div>
+            <div class="flex flex-1 max-w-xl w-full gap-2">
+                <input type="tel" id="search-input" placeholder="Pesquisar contacto (Ex: 923...)" class="input-master flex-1">
+                <button onclick="buscarUsuario()" class="bg-blue-600 px-6 rounded-lg hover:bg-blue-700"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="limparCache()" class="bg-slate-700 px-4 py-2 rounded-lg text-[10px] font-bold hover:bg-slate-600 btn-action">Limpar Cache</button>
+                <button onclick="location.reload()" class="bg-red-900/50 text-red-400 px-4 py-2 rounded-lg text-[10px] font-bold btn-action">Sair</button>
+            </div>
+        </header>
 
-        <div class="flex gap-2 mb-6">
-            <button onclick="tab('pedidos')" id="btn-pedidos" class="flex-1 bg-blue-600 py-3 rounded-lg font-black text-[11px] uppercase">Pedidos</button>
-            <button onclick="tab('usuarios')" id="btn-usuarios" class="flex-1 bg-slate-800 py-3 rounded-lg font-black text-[11px] uppercase">Usuários</button>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="lg:col-span-1 space-y-6">
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-2 h-2 bg-amber-500 rounded-full animate-ping"></span> Pendências Financeiras
+                </h2>
+                <div id="lista-pendencias" class="space-y-4 h-[70vh] overflow-y-auto pr-2">
+                    </div>
+            </div>
 
-        <div id="sec-pedidos" class="space-y-4">
-            <h2 class="text-xs font-black text-slate-500 uppercase italic">Solicitações Financeiras</h2>
-            <div id="lista-pedidos" class="space-y-4"></div>
-        </div>
+            <div class="lg:col-span-2">
+                <div id="placeholder-msg" class="admin-glass p-20 rounded-2xl text-center opacity-30">
+                    <i class="fas fa-user-search text-5xl mb-4"></i>
+                    <p class="font-bold">Pesquise um contacto para gerir a conta</p>
+                </div>
 
-        <div id="sec-usuarios" class="hidden space-y-4">
-            <div class="card-adm p-4">
-                <p class="text-[10px] font-black mb-2 opacity-50">PESQUISA RÁPIDA (CONTACTO)</p>
-                <div class="flex gap-2">
-                    <input type="number" id="search-input" placeholder="9xxxxxxxx" class="flex-1 p-3 input-adm text-sm">
-                    <button onclick="searchUser()" class="bg-blue-600 px-5 rounded-lg"><i class="fas fa-search"></i></button>
+                <div id="user-management" class="hidden space-y-6">
+                    <div class="admin-glass p-6 rounded-xl flex justify-between items-center border-l-4 border-blue-500">
+                        <div>
+                            <h3 class="text-2xl font-black" id="disp-uid">---</h3>
+                            <span id="status-tag" class="text-[10px] px-2 py-1 rounded font-bold uppercase"></span>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] opacity-50 uppercase">Saldo Atual</p>
+                            <b class="text-2xl text-green-500" id="disp-saldo">0.00 KZ</b>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="admin-glass p-6 rounded-xl">
+                            <p class="text-[10px] font-bold text-blue-400 mb-4 uppercase">Dados de Segurança</p>
+                            <div class="space-y-4">
+                                <div><label class="text-[9px] opacity-50">SENHA DO USUÁRIO</label><input id="edit-pw" class="input-master w-full mt-1"></div>
+                                <div><label class="text-[9px] opacity-50">IBAN VINCULADO</label><input id="edit-iban" class="input-master w-full mt-1"></div>
+                                <button onclick="updateUserData()" class="w-full bg-blue-600 py-3 rounded font-bold text-[11px] btn-action">Salvar Novos Dados</button>
+                            </div>
+                        </div>
+                        <div class="admin-glass p-6 rounded-xl">
+                            <p class="text-[10px] font-bold text-green-400 mb-4 uppercase">Ações de Saldo</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="modificarSaldo('add')" class="bg-emerald-600/20 text-emerald-500 border border-emerald-500/30 p-3 rounded font-bold text-[10px] btn-action">Adicionar Saldo</button>
+                                <button onclick="modificarSaldo('sub')" class="bg-red-600/20 text-red-500 border border-red-500/30 p-3 rounded font-bold text-[10px] btn-action">Remover Saldo</button>
+                                <button onclick="atribuirBonusManual()" class="bg-amber-600/20 text-amber-500 border border-amber-500/30 p-3 rounded font-bold text-[10px] btn-action col-span-2">Atribuir Bónus de Rede</button>
+                                <button id="btn-lock" onclick="toggleStatus()" class="p-3 rounded font-bold text-[10px] btn-action col-span-2"></button>
+                                <button onclick="deleteAccount()" class="text-red-600 text-[10px] font-bold p-2 hover:underline">Eliminar Conta Permanentemente</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="admin-glass p-4 rounded-xl h-60 flex flex-col">
+                            <p class="text-[10px] font-bold mb-2 uppercase">Histórico de Transações</p>
+                            <div id="disp-extrato" class="flex-1 overflow-y-auto text-[9px] space-y-2"></div>
+                        </div>
+                        <div class="admin-glass p-4 rounded-xl h-60 flex flex-col">
+                            <p class="text-[10px] font-bold mb-2 uppercase">Convidados do Usuário</p>
+                            <div id="disp-convidados" class="flex-1 overflow-y-auto text-[9px] space-y-2"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div id="lista-usuarios" class="space-y-4"></div>
         </div>
     </div>
 
-    <div id="modal-img" class="fixed inset-0 bg-black/95 hidden flex flex-col items-center justify-center z-[110] p-4" onclick="this.classList.add('hidden')">
-        <img id="full-img" src="" class="max-w-full max-h-[80vh] border-2 border-blue-500 rounded-xl">
-        <p class="mt-4 font-black text-xs uppercase italic">Clique para fechar</p>
-    </div>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc, increment, getDoc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <div id="toast" class="fixed bottom-10 right-10 px-6 py-4 rounded-lg font-bold text-xs hidden z-[9999] shadow-2xl uppercase"></div>
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyA03WW6zrf79PsZY6KvaxGRsGFY1AEFCYs", 
-            authDomain: "fir-b8708.firebaseapp.com", 
-            projectId: "fir-b8708", 
-            storageBucket: "fir-b8708.firebasestorage.app", 
-            messagingSenderId: "174524990208", 
-            appId: "1:174524990208:web:eb08738fdd7cd1cd98a9e5" 
-        };
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, updateDoc, collection, onSnapshot, query, where, increment, arrayUnion, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const firebaseConfig = { apiKey: "AIzaSyA03WW6zrf79PsZY6KvaxGRsGFY1AEFCYs", authDomain: "fir-b8708.firebaseapp.com", projectId: "fir-b8708", storageBucket: "fir-b8708.firebasestorage.app", messagingSenderId: "174524990208", appId: "1:174524990208:web:eb08738fdd7cd1cd98a9e5" };
+    const app = initializeApp(firebaseConfig); const db = getFirestore(app);
 
-        window.checkAccess = () => {
-            if(document.getElementById('admin-key').value === 'ABS..943') {
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('admin-content').classList.remove('hidden');
-            } else { alert("Chave Inválida"); }
-        };
+    let activeUID = null;
 
-        window.tab = (tipo) => {
-            document.getElementById('sec-pedidos').classList.toggle('hidden', tipo !== 'pedidos');
-            document.getElementById('sec-usuarios').classList.toggle('hidden', tipo !== 'usuarios');
-            document.getElementById('btn-pedidos').className = tipo === 'pedidos' ? 'flex-1 bg-blue-600 py-3 rounded-lg font-black text-[11px] uppercase' : 'flex-1 bg-slate-800 py-3 rounded-lg font-black text-[11px] uppercase';
-            document.getElementById('btn-usuarios').className = tipo === 'usuarios' ? 'flex-1 bg-blue-600 py-3 rounded-lg font-black text-[11px] uppercase' : 'flex-1 bg-slate-800 py-3 rounded-lg font-black text-[11px] uppercase';
-        };
+    // --- AUTENTICAÇÃO ---
+    window.acessarSistema = () => {
+        const key = document.getElementById('master-key').value;
+        if(key === "ABS..943") {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-panel').classList.remove('hidden');
+            notify("SISTEMA ONLINE - BEM-VINDO CHEFE", false);
+            startMonitor();
+        } else {
+            notify("CHAVE INVÁLIDA - ACESSO BLOQUEADO");
+        }
+    };
 
+    function notify(m, isErr = true) {
+        const t = document.getElementById('toast');
+        t.innerText = m; t.style.background = isErr ? "#991b1b" : "#166534";
+        t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000);
+    }
+
+    // --- LIMPEZA DE CACHE ---
+    window.limparCache = () => {
+        if(confirm("Deseja limpar todos os dados temporários do navegador? Isso pode resolver erros de carregamento.")) {
+            localStorage.clear();
+            sessionStorage.clear();
+            notify("CACHE DO SISTEMA LIMPO!", false);
+        }
+    };
+
+    // --- MONITOR DE PENDÊNCIAS (SAQUES/DEPÓSITOS) ---
+    function startMonitor() {
         onSnapshot(collection(db, "usuarios"), (snap) => {
-            const listP = document.getElementById('lista-pedidos');
-            const listU = document.getElementById('lista-usuarios');
-            listP.innerHTML = ""; listU.innerHTML = "";
-            document.getElementById('total-users').innerText = snap.size;
-
-            snap.forEach(userDoc => {
-                const u = userDoc.data();
-                const uid = userDoc.id;
-
-                // Renderizar Pedidos Pendentes
+            const list = document.getElementById('lista-pendencias');
+            list.innerHTML = "";
+            snap.forEach(user => {
+                const u = user.data();
+                const uid = user.id;
                 u.extrato?.forEach((ex, idx) => {
                     if(ex.status === "Em análise" || ex.status === "Pendente") {
-                        const pCard = document.createElement('div');
-                        pCard.className = "card-adm p-4 border-l-4 " + (ex.desc.includes('Saque') ? 'border-red-500' : 'border-green-500');
-                        pCard.innerHTML = `
+                        const div = document.createElement('div');
+                        div.className = "admin-glass p-4 border-l-4 " + (ex.desc.includes('Saque') ? 'border-red-500' : 'border-green-500');
+                        div.innerHTML = `
                             <div class="flex justify-between items-start mb-2">
-                                <span class="text-[10px] font-black uppercase text-blue-400">${ex.desc}</span>
-                                <b class="text-lg">${ex.valor} KZ</b>
+                                <span class="text-[9px] font-bold uppercase opacity-50">${ex.desc}</span>
+                                <b class="text-blue-400 text-xs">${ex.valor} KZ</b>
                             </div>
-                            <p class="text-[9px] font-bold mb-3 opacity-50">USUÁRIO: ${uid}</p>
-                            ${ex.foto ? `<button onclick="window.ver('${ex.foto}')" class="w-full bg-slate-800 py-2 rounded mb-3 text-[10px] font-bold">VER COMPROVANTE</button>` : ''}
+                            <p class="text-[10px] mb-3">ID: ${uid}</p>
+                            ${ex.foto ? `<button onclick="viewDoc('${ex.foto}')" class="w-full bg-slate-800 text-[8px] py-2 mb-2 rounded font-black uppercase">Ver Comprovante</button>` : ''}
                             <div class="grid grid-cols-2 gap-2">
-                                <button onclick="window.decidir('${uid}', ${idx}, 'Aprovado', ${ex.valor}, '${ex.desc}')" class="bg-green-600 py-2 rounded font-bold text-[10px]">APROVAR</button>
-                                <button onclick="window.decidir('${uid}', ${idx}, 'Rejeitado', ${ex.valor}, '${ex.desc}')" class="bg-red-600 py-2 rounded font-bold text-[10px]">REJEITAR</button>
+                                <button onclick="processFin('${uid}', ${idx}, 'Aprovado', ${ex.valor}, '${ex.desc}')" class="bg-green-600 text-[8px] py-2 rounded font-black uppercase">Aprovar</button>
+                                <button onclick="processFin('${uid}', ${idx}, 'Rejeitado', ${ex.valor}, '${ex.desc}')" class="bg-red-600 text-[8px] py-2 rounded font-black uppercase">Rejeitar</button>
                             </div>
                         `;
-                        listP.appendChild(pCard);
+                        list.appendChild(div);
                     }
                 });
-
-                // Renderizar Cartão de Gestão de Usuário
-                const uCard = document.createElement('div');
-                uCard.id = "user-card-" + uid;
-                uCard.className = "card-adm p-4";
-                uCard.innerHTML = `
-                    <div class="flex justify-between items-center border-b border-slate-800 pb-3 mb-3">
-                        <b class="text-blue-400 italic">${uid}</b>
-                        <div class="flex gap-2">
-                            <button onclick="window.toggleBan('${uid}', ${u.banido})" class="${u.banido?'bg-red-500':'bg-slate-700'} text-[9px] px-3 py-1 rounded font-black">${u.banido?'DESBLOQUEAR':'BLOQUEAR'}</button>
-                            <button onclick="window.eliminar('${uid}')" class="bg-red-900 text-[9px] px-3 py-1 rounded font-black">APAGAR</button>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-y-2 text-[10px] font-bold mb-4">
-                        <p>SALDO: <span class="text-green-500">${u.saldo} KZ</span></p>
-                        <p>SENHA: <span class="text-orange-400">${u.pw}</span></p>
-                        <p class="col-span-2">IBAN: ${u.banco?.i || 'NÃO CONFIGURADO'}</p>
-                        <p class="col-span-2">CONVIDADOS: ${u.convidados || 0}</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="window.ajustarSaldo('${uid}', 'add')" class="bg-blue-600/20 text-blue-400 py-2 rounded text-[9px] font-black">ADD SALDO</button>
-                        <button onclick="window.ajustarSaldo('${uid}', 'sub')" class="bg-red-600/20 text-red-400 py-2 rounded text-[9px] font-black">RETIRAR SALDO</button>
-                        <button onclick="window.darBonus('${uid}')" class="bg-yellow-600/20 text-yellow-500 py-2 rounded text-[9px] font-black">DAR BÓNUS</button>
-                        <button onclick="window.novaSenha('${uid}')" class="bg-slate-700 py-2 rounded text-[9px] font-black">MUDAR SENHA</button>
-                    </div>
-                    <details class="mt-4"><summary class="text-[9px] font-black opacity-50 uppercase">Ver Extrato Completo</summary>
-                        <div class="mt-2 space-y-1 text-[8px] max-h-32 overflow-y-auto">
-                            ${u.extrato?.map(e => `<div class="flex justify-between border-b border-slate-800 py-1"><span>${e.desc}</span><b class="${e.status==='Aprovado'?'text-green-500':'text-red-400'}">${e.status}</b></div>`).join('')}
-                        </div>
-                    </details>
-                `;
-                listU.appendChild(uCard);
             });
         });
+    }
 
-        window.searchUser = () => {
-            const val = document.getElementById('search-input').value;
-            const el = document.getElementById('user-card-' + val);
-            if(el) { el.scrollIntoView(); el.classList.add('border-blue-500', 'border-2'); setTimeout(() => el.classList.remove('border-blue-500', 'border-2'), 3000); }
-            else { alert("Usuário não encontrado"); }
-        };
+    window.viewDoc = (url) => {
+        const m = document.createElement('div');
+        m.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;display:flex;align-items:center;justify-content:center;";
+        m.innerHTML = `<img src="${url}" style="max-width:90%; max-height:80%; border:2px solid #3b82f6; border-radius:10px;">`;
+        m.onclick = () => m.remove();
+        document.body.appendChild(m);
+    };
 
-        window.ver = (src) => { document.getElementById('full-img').src = src; document.getElementById('modal-img').classList.remove('hidden'); };
-        window.toggleBan = async (uid, status) => { await updateDoc(doc(db, "usuarios", uid), { banido: !status }); alert("Status alterado!"); };
-        window.eliminar = async (uid) => { if(confirm("Apagar conta "+uid+" permanentemente?")) await deleteDoc(doc(db, "usuarios", uid)); };
+    window.processFin = async (uid, idx, status, valor, desc) => {
+        const ref = doc(db, "usuarios", uid);
+        const u = (await getDoc(ref)).data();
+        u.extrato[idx].status = status;
+        u.extrato[idx].cor = status === "Aprovado" ? "text-green-500" : "text-red-500";
         
-        window.ajustarSaldo = async (uid, tipo) => {
-            const val = parseFloat(prompt("Valor a " + (tipo==='add'?'adicionar':'retirar') + ":"));
-            if(val > 0) {
-                await updateDoc(doc(db, "usuarios", uid), { 
-                    saldo: increment(tipo==='add' ? val : -val),
-                    extrato: arrayUnion({ data: new Date().toLocaleString(), valor: val, desc: "Ajuste Administrativo", status: "Aprovado" })
-                });
-                alert("Saldo atualizado!");
-            }
-        };
+        let up = { extrato: u.extrato };
+        if(status === "Aprovado" && desc.includes("Depósito")) up.saldo = increment(parseFloat(valor));
+        
+        await updateDoc(ref, up);
+        notify(`OPERAÇÃO ${status.toUpperCase()} PARA ${uid}`, false);
+    };
 
-        window.darBonus = async (uid) => {
-            const val = parseFloat(prompt("Valor do bónus:"));
-            if(val > 0) {
-                await updateDoc(doc(db, "usuarios", uid), { 
-                    saldo: increment(val),
-                    extrato: arrayUnion({ data: new Date().toLocaleString(), valor: val, desc: "Bónus de Sistema", status: "Aprovado" })
-                });
-                alert("Bónus atribuído!");
-            }
-        };
+    // --- GESTÃO DE USUÁRIO (PESQUISA) ---
+    window.buscarUsuario = async () => {
+        const q = document.getElementById('search-input').value;
+        if(!q) return notify("DIGITE UM CONTACTO");
+        
+        const s = await getDoc(doc(db, "usuarios", q));
+        if(!s.exists()) return notify("USUÁRIO NÃO ENCONTRADO");
+        
+        activeUID = q;
+        const u = s.data();
+        document.getElementById('placeholder-msg').classList.add('hidden');
+        document.getElementById('user-management').classList.remove('hidden');
+        
+        document.getElementById('disp-uid').innerText = activeUID;
+        document.getElementById('disp-saldo').innerText = u.saldo.toLocaleString() + " KZ";
+        document.getElementById('edit-pw').value = u.pw;
+        document.getElementById('edit-iban').value = u.banco?.i || "NÃO CONFIGURADO";
+        
+        const tag = document.getElementById('status-tag');
+        tag.innerText = u.bloqueado ? "Bloqueado" : "Ativo";
+        tag.className = u.bloqueado ? "text-[10px] px-2 py-1 rounded font-bold uppercase bg-red-900/50 text-red-500" : "text-[10px] px-2 py-1 rounded font-bold uppercase bg-green-900/50 text-green-500";
+        document.getElementById('btn-lock').innerText = u.bloqueado ? "Desbloquear Conta" : "Bloquear Conta";
+        document.getElementById('btn-lock').className = u.bloqueado ? "bg-green-600/20 text-green-500 border border-green-500/30 p-3 rounded font-bold text-[10px] btn-action col-span-2" : "bg-red-600/20 text-red-500 border border-red-500/30 p-3 rounded font-bold text-[10px] btn-action col-span-2";
 
-        window.novaSenha = async (uid) => {
-            const s = prompt("Digite a nova senha de 6 dígitos:");
-            if(s && s.length === 6) { await updateDoc(doc(db, "usuarios", uid), { pw: s }); alert("Senha alterada!"); }
-        };
+        document.getElementById('disp-extrato').innerHTML = u.extrato.slice().reverse().map(e => `<div class="p-2 border-b border-white/5"><b>${e.valor}</b> - ${e.desc} <br> <span class="opacity-50">${e.status}</span></div>`).join('');
+        
+        // Buscar Convidados Reais
+        const convQuery = query(collection(db, "usuarios"), where("refBy", "==", activeUID));
+        onSnapshot(convQuery, (qSnap) => {
+            document.getElementById('disp-convidados').innerHTML = qSnap.docs.map(d => `<div class="p-2 bg-slate-800 rounded mb-1">ID: ${d.id}</div>`).join('') || "NENHUM CONVIDADO";
+        });
+    };
 
-        window.decidir = async (uid, idx, status, valor, desc) => {
-            const ref = doc(db, "usuarios", uid);
-            const uSnap = await getDoc(ref);
-            let ext = [...uSnap.data().extrato];
-            ext[idx].status = status;
-            let up = { extrato: ext };
-            if(status === 'Aprovado' && desc.includes('Depósito')) { up.saldo = increment(valor); up.r_total = increment(valor); }
-            if(status === 'Rejeitado' && desc.includes('Saque')) { up.saldo = increment(valor); }
-            await updateDoc(ref, up);
-            alert("Pedido " + status);
-        };
-    </script>
+    window.updateUserData = async () => {
+        const pw = document.getElementById('edit-pw').value;
+        const iban = document.getElementById('edit-iban').value;
+        await updateDoc(doc(db, "usuarios", activeUID), { pw: pw, "banco.i": iban });
+        notify("DADOS DO CLIENTE ATUALIZADOS", false);
+        buscarUsuario();
+    };
+
+    window.modificarSaldo = async (tipo) => {
+        const val = prompt("VALOR KZ:");
+        if(!val) return;
+        const n = parseFloat(val);
+        await updateDoc(doc(db, "usuarios", activeUID), { 
+            saldo: increment(tipo === 'add' ? n : -n),
+            extrato: arrayUnion({ data: new Date().toLocaleString(), valor: n, desc: "Ajuste Administrativo", cor: "text-blue-500", status: "Concluído" })
+        });
+        buscarUsuario();
+    };
+
+    window.toggleStatus = async () => {
+        const u = (await getDoc(doc(db, "usuarios", activeUID))).data();
+        await updateDoc(doc(db, "usuarios", activeUID), { bloqueado: !u.bloqueado });
+        buscarUsuario();
+    };
+
+    window.deleteAccount = async () => {
+        if(confirm("ELIMINAR ESTA CONTA PARA SEMPRE?")) {
+            await deleteDoc(doc(db, "usuarios", activeUID));
+            location.reload();
+        }
+    };
+
+</script>
 </body>
-</html>
+                            </html>
+
