@@ -11,7 +11,6 @@
         * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: var(--castanho); color: white; height: 100vh; overflow: hidden; }
         
-        /* Notificação Profissional */
         #notif { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-250%); background: var(--verde); color: white; padding: 15px; border-radius: 12px; font-weight: bold; z-index: 10000; transition: 0.5s; width: 85%; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-left: 5px solid #166534; }
         #notif.show { transform: translateX(-50%) translateY(0); }
 
@@ -34,8 +33,6 @@
         .tab.on { opacity: 1; border-bottom: 3px solid white; }
 
         .balance-card { background: #3d2b25; padding: 25px; border-bottom: 4px solid var(--verde); text-align: center; position: relative; z-index: 10; }
-        
-        /* Estilização do Símbolo no Centro */
         .home-logo-central { width: 130px; opacity: 0.1; position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; }
 
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px; border-top: 1px solid #eee; z-index: 1000; }
@@ -44,7 +41,6 @@
 
         .card-f { background: white; padding: 15px; border-radius: 15px; margin: 10px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .profile-values { background: white; padding: 20px; border-radius: 15px; border: 2px solid var(--castanho); margin: 15px 0; text-align: left; }
-
         .hist-box { text-align: left; margin-top: 15px; background: white; border-radius: 12px; padding: 12px; max-height: 200px; overflow-y: auto; font-size: 11px; border: 1px solid #eee; }
         .h-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; align-items: center; }
         .back-btn { cursor: pointer; color: var(--castanho); font-weight: bold; display: block; text-align: left; margin-bottom: 15px; }
@@ -90,7 +86,6 @@
         </div>
     </div>
     <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" class="home-logo-central">
-    
     <div class="nav-bar">
         <div class="nav-i on" onclick="nav('p-home')">🏠<br>INÍCIO</div>
         <div class="nav-i" onclick="nav('p-min')">⛏️<br>MINERAÇÃO</div>
@@ -186,7 +181,7 @@
         </div>
         <div class="card-f" style="text-align:left; font-size:12px;">
             <p style="color:var(--verde); font-weight:bold;">Convide seu amigo para investir um valor igual à 1000kz ou superior para ganhar a recompensa de 10%.</p>
-            <p style="margin-top:10px; font-weight:bold;">Salários semanais em todos os sábados às 15horas por desenvolver a equipa:</p>
+            <p style="margin-top:10px; font-weight:bold;">Salários semanais em todos os sábados às 15horas:</p>
             <p style="margin-top:5px">- Com 5 investidores poderá ganhar 500kz por semana</p>
             <p>- Com 15 investidores poderá ganhar 2000kz por semana</p>
             <p>- Com 30 investidores poderá ganhar 5000kz por semana</p>
@@ -200,40 +195,19 @@
     firebase.initializeApp(firebaseConfig); const db = firebase.database();
     let u = null, imgB64 = "";
 
+    // LER O ID DO LINK AUTOMATICAMENTE (?ref=12345)
+    window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get('ref');
+        if(ref) document.getElementById('r-ref').value = ref;
+    };
+
     function ntf(m) { const n=document.getElementById('notif'); n.innerText=m; n.classList.add('show'); setTimeout(()=>n.classList.remove('show'),3000); }
-    
-    function nav(id) { 
-        if(['p-saq', 'p-rec', 'p-cv'].includes(id)) {
-            document.querySelectorAll('input').forEach(i => i.value = "");
-            document.getElementById('s-net').innerText = "";
-            document.getElementById('r-pre').style.display = "none";
-            imgB64 = "";
-        }
-        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); 
-        document.getElementById(id).classList.add('active'); 
-    }
-
-    function toggleAuth(t) {
-        document.getElementById('box-ent').style.display = t==='ent'?'block':'none';
-        document.getElementById('box-reg').style.display = t==='reg'?'block':'none';
-        document.getElementById('t-ent').className = t==='ent'?'tab on':'tab';
-        document.getElementById('t-reg').className = t==='reg'?'tab on':'tab';
-    }
-
-    function handlePreview(e) { 
-        const r=new FileReader(); r.onload=()=>{ imgB64=r.result; const p=document.getElementById('r-pre'); p.src=r.result; p.style.display='block'; }; r.readAsDataURL(e.target.files[0]); 
-    }
-
-    function updateBankInfo() {
-        const b=document.getElementById('r-bank').value;
-        const info = { BCI:"000500006987521210197", BFA:"000600002870913430151", VIA:"921054122" };
-        document.getElementById('r-data').innerText = b ? "Dados: " + info[b] : "";
-    }
-
-    function calcNet() {
-        const v=parseFloat(document.getElementById('s-val').value);
-        document.getElementById('s-net').innerText = v >= 400 ? "Líquido: " + (v*0.88).toFixed(2) + " KZ" : "";
-    }
+    function nav(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    function toggleAuth(t) { document.getElementById('box-ent').style.display=t==='ent'?'block':'none'; document.getElementById('box-reg').style.display=t==='reg'?'block':'none'; document.getElementById('t-ent').className=t==='ent'?'tab on':'tab'; document.getElementById('t-reg').className=t==='reg'?'tab on':'tab'; }
+    function handlePreview(e) { const r=new FileReader(); r.onload=()=>{ imgB64=r.result; const p=document.getElementById('r-pre'); p.src=r.result; p.style.display='block'; }; r.readAsDataURL(e.target.files[0]); }
+    function updateBankInfo() { const b=document.getElementById('r-bank').value; const info = { BCI:"000500006987521210197", BFA:"000600002870913430151", VIA:"921054122" }; document.getElementById('r-data').innerText = b ? "Dados: " + info[b] : ""; }
+    function calcNet() { const v=parseFloat(document.getElementById('s-val').value); document.getElementById('s-net').innerText = v >= 400 ? "Líquido: " + (v*0.88).toFixed(2) + " KZ" : ""; }
 
     function doRegister() {
         const t=document.getElementById('r-tel').value, p1=document.getElementById('r-p1').value, p2=document.getElementById('r-p2').value, ref=document.getElementById('r-ref').value;
@@ -284,11 +258,7 @@
             ntf("Convertido!");
             if(v >= 1000 && u.padrinho !== "Direto") {
                 db.ref('users').once('value', snap => {
-                    snap.forEach(c => {
-                        if(c.val().id == u.padrinho) {
-                            db.ref('users/'+c.key).update({ saldo: c.val().saldo + (v * 0.10), inv_eq: (c.val().inv_eq||0) + 1 });
-                        }
-                    });
+                    snap.forEach(c => { if(c.val().id == u.padrinho) db.ref('users/'+c.key).update({ saldo: c.val().saldo + (v * 0.10), inv_eq: (c.val().inv_eq||0) + 1 }); });
                 });
             }
         });
@@ -296,7 +266,7 @@
 
     function collectDaily() {
         const agora = Date.now();
-        if(u.conv <= 0 || agora - (u.lastCol || 0) < 86400000) return ntf("Sem investimento ou já coletou hoje!");
+        if(u.conv <= 0 || agora - (u.lastCol || 0) < 86400000) return ntf("Aguarde 24h para coletar!");
         const g=u.conv*0.04, h=u.hM||[]; h.unshift({v:g.toFixed(2), d:new Date().toLocaleString()});
         db.ref('users/'+u.tel).update({saldo:u.saldo+g, hoje:g, total:(u.total||0)+g, lastCol:agora, hM:h}).then(()=>ntf("Comissão coletada!"));
     }
@@ -314,13 +284,14 @@
         document.getElementById('f-tot').innerText=(u.total||0).toFixed(2);
         document.getElementById('eq-count').innerText=u.ins||0;
         document.getElementById('eq-inv').innerText=u.inv_eq||0;
-        document.getElementById('eq-url').innerText="https://investgithu.github.io/hub/ref="+u.id;
         
-        // Render com Cores Dinâmicas para Aprovado/Pago
+        // CORREÇÃO DO LINK DE CONVITE COM "?"
+        document.getElementById('eq-url').innerText="https://investgithu.github.io/hub/?ref="+u.id;
+        
         document.getElementById('list-rec').innerHTML=(u.hR||[]).map(x=>`<div class="h-row"><span>${x.d}</span><b style="color:${x.s==='Aprovado'?'var(--verde)':'orange'}">${x.v} KZ (${x.s})</b></div>`).join('');
         document.getElementById('list-saq').innerHTML=(u.hS||[]).map(x=>`<div class="h-row"><span>${x.d}</span><b style="color:${x.s==='Pago'?'var(--verde)':'#3b82f6'}">${x.v} KZ (${x.s})</b></div>`).join('');
         document.getElementById('list-min').innerHTML=(u.hM||[]).map(x=>`<div class="h-row"><span>${x.d}</span><b style="color:green">+${x.v} KZ</b></div>`).join('');
     }
 </script>
 </body>
-    </html>
+</html>
