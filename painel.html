@@ -1,272 +1,184 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-ao">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MASTER ADMIN | GITHUB</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ADMIN MASTER | GITHUB</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap');
-        body { font-family: 'Roboto Mono', monospace; background: #020617; color: #e2e8f0; }
-        .admin-glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .input-master { background: #1e293b; border: 1px solid #334155; color: white; padding: 12px; border-radius: 6px; outline: none; transition: 0.3s; }
-        .input-master:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
-        .btn-action { transition: 0.2s; cursor: pointer; text-transform: uppercase; font-weight: bold; font-size: 11px; }
-        .btn-action:active { transform: scale(0.95); }
-        .hidden { display: none !important; }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        :root { --verde: #22c55e; --vermelho: #ef4444; --bg: #0f172a; --card: #1e293b; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #f1f5f9; padding: 10px; }
+        
+        #notif { position: fixed; top: 10px; left: 50%; transform: translateX(-50%) translateY(-200%); background: var(--verde); color: white; padding: 15px; border-radius: 8px; transition: 0.5s; z-index: 10000; width: 90%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .show { transform: translateX(-50%) translateY(0) !important; }
+
+        .card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-top: 4px solid var(--verde); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        input, button { padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #334155; width: 100%; font-weight: bold; }
+        button { cursor: pointer; color: white; border: none; text-transform: uppercase; font-size: 11px; }
+        .btn-v { background: var(--verde); }
+        .btn-r { background: var(--vermelho); }
+        .btn-b { background: #3b82f6; }
+        
+        .table-container { width: 100%; overflow-x: auto; margin-top: 10px; border-radius: 8px; background: #0f172a; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; font-size: 11px; }
+        th, td { padding: 10px; border-bottom: 1px solid #334155; text-align: left; }
+        
+        .img-preview { width: 50px; height: 50px; object-fit: cover; border: 2px solid var(--verde); border-radius: 6px; cursor: zoom-in; }
+
+        #modal-img { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 20000; justify-content: center; align-items: center; flex-direction: column; }
+        #modal-img img { max-width: 90%; max-height: 80%; border: 3px solid white; border-radius: 10px; }
+        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 30px; color: white; cursor: pointer; }
+
+        #login-box { text-align: center; margin-top: 20vh; padding: 20px; }
+        .grid-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        
+        /* Estilo para info de equipe */
+        .equipa-box { display: flex; justify-content: space-between; background: #0f172a; padding: 10px; border-radius: 8px; margin: 10px 0; border-left: 3px solid #3b82f6; }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body>
 
-    <div id="auth-screen" class="min-h-screen flex items-center justify-center">
-        <div class="admin-glass p-10 rounded-2xl w-full max-w-md text-center">
-            <div class="mb-6"><i class="fas fa-terminal text-5xl text-blue-500"></i></div>
-            <h1 class="text-xl font-bold mb-6 tracking-tighter">SISTEMA DE GESTÃO GITHUB</h1>
-            <input type="password" id="master-key" placeholder="INSIRA A CHAVE MASTER" class="input-master w-full text-center mb-4">
-            <button onclick="acessarSistema()" class="w-full bg-blue-600 hover:bg-blue-700 py-4 rounded-lg font-bold btn-action">Autenticar</button>
-        </div>
+    <div id="notif">Ação Processada com Sucesso!</div>
+
+    <div id="modal-img" onclick="fecharModal()">
+        <span class="close-modal">&times;</span>
+        <img id="img-full" src="">
     </div>
 
-    <div id="main-panel" class="hidden">
-        <header class="admin-glass p-4 rounded-xl mb-6 flex flex-col md:flex-row gap-4 items-center justify-between sticky top-0 z-50">
-            <div class="flex items-center gap-4">
-                <i class="fab fa-github text-3xl"></i>
-                <span class="font-black text-blue-500 uppercase text-xs">Admin Master</span>
-            </div>
-            <div class="flex flex-1 max-w-xl w-full gap-2">
-                <input type="tel" id="search-input" placeholder="Pesquisar contacto (Ex: 923...)" class="input-master flex-1">
-                <button onclick="buscarUsuario()" class="bg-blue-600 px-6 rounded-lg hover:bg-blue-700"><i class="fas fa-search"></i></button>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="limparCache()" class="bg-slate-700 px-4 py-2 rounded-lg text-[10px] font-bold hover:bg-slate-600 btn-action">Limpar Cache</button>
-                <button onclick="location.reload()" class="bg-red-900/50 text-red-400 px-4 py-2 rounded-lg text-[10px] font-bold btn-action">Sair</button>
-            </div>
-        </header>
+    <div id="login-box">
+        <h2 style="letter-spacing: 2px;">PAINEL GITHUB ADMIN</h2>
+        <input type="password" id="m-key" placeholder="Introduza a Chave ABS...">
+        <button class="btn-v" onclick="verificarAcesso()">ENTRAR NO SISTEMA</button>
+    </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div id="main-admin" style="display: none;">
+        <div class="card" style="display: flex; justify-content: space-around; text-align: center;">
+            <div>Inscritos GERAL<br><h2 id="tot-ins">0</h2></div>
+            <div>Investidores GERAL<br><h2 id="tot-inv">0</h2></div>
+        </div>
+
+        <div class="card">
+            <h4>Pesquisar Usuário</h4>
+            <input type="text" id="q-user" placeholder="ID ou Contacto">
+            <button class="btn-b" onclick="buscarUser()">PESQUISAR</button>
             
-            <div class="lg:col-span-1 space-y-6">
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                    <span class="w-2 h-2 bg-amber-500 rounded-full animate-ping"></span> Pendências Financeiras
-                </h2>
-                <div id="lista-pendencias" class="space-y-4 h-[70vh] overflow-y-auto pr-2">
-                    </div>
+            <div id="user-box" style="display:none; margin-top:15px; padding:15px; background:#1e293b; border-radius:10px; border: 1px solid #334155;">
+                <p>User: <b id="u-tel" style="color:var(--verde)"></b> | ID: <b id="u-id"></b></p>
+                
+                <div class="equipa-box">
+                    <div>Convidados: <b id="u-ins" style="color:#3b82f6">0</b></div>
+                    <div>Investidores: <b id="u-inv" style="color:var(--verde)">0</b></div>
+                </div>
+
+                <p>Senha: <b id="u-pass"></b> | Status: <b id="u-status"></b></p>
+                <p>IBAN: <b id="u-iban" style="color:#60a5fa"></b></p>
+                <p>Saldo: <b id="u-saldo" style="color:yellow"></b></p>
+                
+                <div class="grid-actions">
+                    <button class="btn-v" onclick="alterarSaldo('add')">+ Saldo</button>
+                    <button class="btn-r" onclick="alterarSaldo('rem')">- Saldo</button>
+                    <button style="background:#f59e0b" onclick="mudarSenha()">Nova Senha</button>
+                    <button class="btn-b" id="lock-btn" onclick="bloquear()">Bloquear</button>
+                    <button class="btn-r" style="grid-column: span 2;" onclick="deletar()">ELIMINAR CONTA</button>
+                </div>
             </div>
+        </div>
 
-            <div class="lg:col-span-2">
-                <div id="placeholder-msg" class="admin-glass p-20 rounded-2xl text-center opacity-30">
-                    <i class="fas fa-user-search text-5xl mb-4"></i>
-                    <p class="font-bold">Pesquise um contacto para gerir a conta</p>
-                </div>
+        <div class="card">
+            <h4 style="color:var(--verde)">Solicitações Pendentes</h4>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Usuário</th><th>Tipo</th><th>Valor</th><th>Comprovativo</th><th>Ações</th></tr></thead>
+                    <tbody id="lista-req"></tbody>
+                </table>
+            </div>
+        </div>
 
-                <div id="user-management" class="hidden space-y-6">
-                    <div class="admin-glass p-6 rounded-xl flex justify-between items-center border-l-4 border-blue-500">
-                        <div>
-                            <h3 class="text-2xl font-black" id="disp-uid">---</h3>
-                            <span id="status-tag" class="text-[10px] px-2 py-1 rounded font-bold uppercase"></span>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[10px] opacity-50 uppercase">Saldo Atual</p>
-                            <b class="text-2xl text-green-500" id="disp-saldo">0.00 KZ</b>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="admin-glass p-6 rounded-xl">
-                            <p class="text-[10px] font-bold text-blue-400 mb-4 uppercase">Dados de Segurança</p>
-                            <div class="space-y-4">
-                                <div><label class="text-[9px] opacity-50">SENHA DO USUÁRIO</label><input id="edit-pw" class="input-master w-full mt-1"></div>
-                                <div><label class="text-[9px] opacity-50">IBAN VINCULADO</label><input id="edit-iban" class="input-master w-full mt-1"></div>
-                                <button onclick="updateUserData()" class="w-full bg-blue-600 py-3 rounded font-bold text-[11px] btn-action">Salvar Novos Dados</button>
-                            </div>
-                        </div>
-                        <div class="admin-glass p-6 rounded-xl">
-                            <p class="text-[10px] font-bold text-green-400 mb-4 uppercase">Ações de Saldo</p>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="modificarSaldo('add')" class="bg-emerald-600/20 text-emerald-500 border border-emerald-500/30 p-3 rounded font-bold text-[10px] btn-action">Adicionar Saldo</button>
-                                <button onclick="modificarSaldo('sub')" class="bg-red-600/20 text-red-500 border border-red-500/30 p-3 rounded font-bold text-[10px] btn-action">Remover Saldo</button>
-                                <button onclick="atribuirBonusManual()" class="bg-amber-600/20 text-amber-500 border border-amber-500/30 p-3 rounded font-bold text-[10px] btn-action col-span-2">Atribuir Bónus de Rede</button>
-                                <button id="btn-lock" onclick="toggleStatus()" class="p-3 rounded font-bold text-[10px] btn-action col-span-2"></button>
-                                <button onclick="deleteAccount()" class="text-red-600 text-[10px] font-bold p-2 hover:underline">Eliminar Conta Permanentemente</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="admin-glass p-4 rounded-xl h-60 flex flex-col">
-                            <p class="text-[10px] font-bold mb-2 uppercase">Histórico de Transações</p>
-                            <div id="disp-extrato" class="flex-1 overflow-y-auto text-[9px] space-y-2"></div>
-                        </div>
-                        <div class="admin-glass p-4 rounded-xl h-60 flex flex-col">
-                            <p class="text-[10px] font-bold mb-2 uppercase">Convidados do Usuário</p>
-                            <div id="disp-convidados" class="flex-1 overflow-y-auto text-[9px] space-y-2"></div>
-                        </div>
-                    </div>
-                </div>
+        <div class="card">
+            <h4>Lista de Contactos</h4>
+            <div class="table-container" style="max-height: 300px;">
+                <table>
+                    <thead><tr><th>ID</th><th>Contacto</th><th>Saldo</th><th>Status</th></tr></thead>
+                    <tbody id="lista-geral"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-10 right-10 px-6 py-4 rounded-lg font-bold text-xs hidden z-[9999] shadow-2xl uppercase"></div>
+<script>
+    const firebaseConfig = { apiKey: "AIzaSyA03WW6zrf79PsZY6KvaxGRsGFY1AEFCYs", authDomain: "fir-b8708.firebaseapp.com", databaseURL: "https://fir-b8708-default-rtdb.firebaseio.com", projectId: "fir-b8708", storageBucket: "fir-b8708.firebasestorage.app", messagingSenderId: "174524990208", appId: "1:174524990208:web:fa7e5b60d44d4aee98a9e5" };
+    firebase.initializeApp(firebaseConfig); const db = firebase.database(); let selUser = null;
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, updateDoc, collection, onSnapshot, query, where, increment, arrayUnion, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    function ntf() { const n = document.getElementById('notif'); n.classList.add('show'); setTimeout(()=>n.classList.remove('show'), 2500); }
+    function verImagem(src) { document.getElementById('img-full').src = src; document.getElementById('modal-img').style.display = 'flex'; }
+    function fecharModal() { document.getElementById('modal-img').style.display = 'none'; }
 
-    const firebaseConfig = { apiKey: "AIzaSyA03WW6zrf79PsZY6KvaxGRsGFY1AEFCYs", authDomain: "fir-b8708.firebaseapp.com", projectId: "fir-b8708", storageBucket: "fir-b8708.firebasestorage.app", messagingSenderId: "174524990208", appId: "1:174524990208:web:eb08738fdd7cd1cd98a9e5" };
-    const app = initializeApp(firebaseConfig); const db = getFirestore(app);
-
-    let activeUID = null;
-
-    // --- AUTENTICAÇÃO ---
-    window.acessarSistema = () => {
-        const key = document.getElementById('master-key').value;
-        if(key === "ABS..943") {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-panel').classList.remove('hidden');
-            notify("SISTEMA ONLINE - BEM-VINDO CHEFE", false);
-            startMonitor();
-        } else {
-            notify("CHAVE INVÁLIDA - ACESSO BLOQUEADO");
-        }
-    };
-
-    function notify(m, isErr = true) {
-        const t = document.getElementById('toast');
-        t.innerText = m; t.style.background = isErr ? "#991b1b" : "#166534";
-        t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000);
+    function verificarAcesso() {
+        if(document.getElementById('m-key').value === 'ABS..943') {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('main-admin').style.display = 'block';
+            carregarDados();
+        } else { alert("Chave ABS Incorreta!"); }
     }
 
-    // --- LIMPEZA DE CACHE ---
-    window.limparCache = () => {
-        if(confirm("Deseja limpar todos os dados temporários do navegador? Isso pode resolver erros de carregamento.")) {
-            localStorage.clear();
-            sessionStorage.clear();
-            notify("CACHE DO SISTEMA LIMPO!", false);
-        }
-    };
-
-    // --- MONITOR DE PENDÊNCIAS (SAQUES/DEPÓSITOS) ---
-    function startMonitor() {
-        onSnapshot(collection(db, "usuarios"), (snap) => {
-            const list = document.getElementById('lista-pendencias');
-            list.innerHTML = "";
-            snap.forEach(user => {
-                const u = user.data();
-                const uid = user.id;
-                u.extrato?.forEach((ex, idx) => {
-                    if(ex.status === "Em análise" || ex.status === "Pendente") {
-                        const div = document.createElement('div');
-                        div.className = "admin-glass p-4 border-l-4 " + (ex.desc.includes('Saque') ? 'border-red-500' : 'border-green-500');
-                        div.innerHTML = `
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-[9px] font-bold uppercase opacity-50">${ex.desc}</span>
-                                <b class="text-blue-400 text-xs">${ex.valor} KZ</b>
-                            </div>
-                            <p class="text-[10px] mb-3">ID: ${uid}</p>
-                            ${ex.foto ? `<button onclick="viewDoc('${ex.foto}')" class="w-full bg-slate-800 text-[8px] py-2 mb-2 rounded font-black uppercase">Ver Comprovante</button>` : ''}
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="processFin('${uid}', ${idx}, 'Aprovado', ${ex.valor}, '${ex.desc}')" class="bg-green-600 text-[8px] py-2 rounded font-black uppercase">Aprovar</button>
-                                <button onclick="processFin('${uid}', ${idx}, 'Rejeitado', ${ex.valor}, '${ex.desc}')" class="bg-red-600 text-[8px] py-2 rounded font-black uppercase">Rejeitar</button>
-                            </div>
-                        `;
-                        list.appendChild(div);
-                    }
-                });
-            });
+    function carregarDados() {
+        db.ref('users').on('value', snap => {
+            const users = snap.val(); let ti=0, tv=0, hG='', hR='';
+            for(let t in users) {
+                ti++; if(users[t].inv_eq > 0 || users[t].conv > 0) tv++;
+                hG += `<tr><td>${users[t].id}</td><td>${t}</td><td>${(users[t].saldo||0).toFixed(2)}</td><td>${users[t].status||'Ativo'}</td></tr>`;
+                (users[t].hR || []).forEach((r, i) => { if(r.s === 'Pendente') hR += `<tr><td>${t}</td><td>DEP</td><td>${r.v} KZ</td><td><img src="${r.img}" class="img-preview" onclick="verImagem('${r.img}')"></td><td><button class="btn-v" onclick="processar('${t}',${i},'hR','Aprovado',${r.v})">V</button><button class="btn-r" onclick="processar('${t}',${i},'hR','Reprovado',0)">X</button></td></tr>`; });
+                (users[t].hS || []).forEach((s, i) => { if(s.s === 'Em processamento') hR += `<tr><td>${t}</td><td>SAQUE</td><td>${s.v} KZ</td><td>IBAN: ${s.iban||'---'}</td><td><button class="btn-v" onclick="processar('${t}',${i},'hS','Pago',0)">V</button><button class="btn-r" onclick="processar('${t}',${i},'hS','Reprovado',0)">X</button></td></tr>`; });
+            }
+            document.getElementById('tot-ins').innerText = ti; document.getElementById('tot-inv').innerText = tv;
+            document.getElementById('lista-geral').innerHTML = hG; document.getElementById('lista-req').innerHTML = hR;
         });
     }
 
-    window.viewDoc = (url) => {
-        const m = document.createElement('div');
-        m.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;display:flex;align-items:center;justify-content:center;";
-        m.innerHTML = `<img src="${url}" style="max-width:90%; max-height:80%; border:2px solid #3b82f6; border-radius:10px;">`;
-        m.onclick = () => m.remove();
-        document.body.appendChild(m);
-    };
-
-    window.processFin = async (uid, idx, status, valor, desc) => {
-        const ref = doc(db, "usuarios", uid);
-        const u = (await getDoc(ref)).data();
-        u.extrato[idx].status = status;
-        u.extrato[idx].cor = status === "Aprovado" ? "text-green-500" : "text-red-500";
-        
-        let up = { extrato: u.extrato };
-        if(status === "Aprovado" && desc.includes("Depósito")) up.saldo = increment(parseFloat(valor));
-        
-        await updateDoc(ref, up);
-        notify(`OPERAÇÃO ${status.toUpperCase()} PARA ${uid}`, false);
-    };
-
-    // --- GESTÃO DE USUÁRIO (PESQUISA) ---
-    window.buscarUsuario = async () => {
-        const q = document.getElementById('search-input').value;
-        if(!q) return notify("DIGITE UM CONTACTO");
-        
-        const s = await getDoc(doc(db, "usuarios", q));
-        if(!s.exists()) return notify("USUÁRIO NÃO ENCONTRADO");
-        
-        activeUID = q;
-        const u = s.data();
-        document.getElementById('placeholder-msg').classList.add('hidden');
-        document.getElementById('user-management').classList.remove('hidden');
-        
-        document.getElementById('disp-uid').innerText = activeUID;
-        document.getElementById('disp-saldo').innerText = u.saldo.toLocaleString() + " KZ";
-        document.getElementById('edit-pw').value = u.pw;
-        document.getElementById('edit-iban').value = u.banco?.i || "NÃO CONFIGURADO";
-        
-        const tag = document.getElementById('status-tag');
-        tag.innerText = u.bloqueado ? "Bloqueado" : "Ativo";
-        tag.className = u.bloqueado ? "text-[10px] px-2 py-1 rounded font-bold uppercase bg-red-900/50 text-red-500" : "text-[10px] px-2 py-1 rounded font-bold uppercase bg-green-900/50 text-green-500";
-        document.getElementById('btn-lock').innerText = u.bloqueado ? "Desbloquear Conta" : "Bloquear Conta";
-        document.getElementById('btn-lock').className = u.bloqueado ? "bg-green-600/20 text-green-500 border border-green-500/30 p-3 rounded font-bold text-[10px] btn-action col-span-2" : "bg-red-600/20 text-red-500 border border-red-500/30 p-3 rounded font-bold text-[10px] btn-action col-span-2";
-
-        document.getElementById('disp-extrato').innerHTML = u.extrato.slice().reverse().map(e => `<div class="p-2 border-b border-white/5"><b>${e.valor}</b> - ${e.desc} <br> <span class="opacity-50">${e.status}</span></div>`).join('');
-        
-        // Buscar Convidados Reais
-        const convQuery = query(collection(db, "usuarios"), where("refBy", "==", activeUID));
-        onSnapshot(convQuery, (qSnap) => {
-            document.getElementById('disp-convidados').innerHTML = qSnap.docs.map(d => `<div class="p-2 bg-slate-800 rounded mb-1">ID: ${d.id}</div>`).join('') || "NENHUM CONVIDADO";
+    function buscarUser() {
+        const q = document.getElementById('q-user').value;
+        db.ref('users').once('value', s => {
+            const data = s.val();
+            for(let t in data) {
+                if(t === q || data[t].id == q) {
+                    selUser = t; const u = data[t];
+                    document.getElementById('u-tel').innerText = t;
+                    document.getElementById('u-id').innerText = u.id;
+                    document.getElementById('u-ins').innerText = u.ins || 0; // Inscritos da equipa dele
+                    document.getElementById('u-inv').innerText = u.inv_eq || 0; // Investidores da equipa dele
+                    document.getElementById('u-pass').innerText = u.pass;
+                    document.getElementById('u-status').innerText = u.status || "Ativo";
+                    document.getElementById('u-iban').innerText = u.lastIban || "---";
+                    document.getElementById('u-saldo').innerText = (u.saldo||0).toFixed(2) + " KZ";
+                    document.getElementById('user-box').style.display = 'block';
+                    return;
+                }
+            } alert("Usuário não encontrado!");
         });
-    };
+    }
 
-    window.updateUserData = async () => {
-        const pw = document.getElementById('edit-pw').value;
-        const iban = document.getElementById('edit-iban').value;
-        await updateDoc(doc(db, "usuarios", activeUID), { pw: pw, "banco.i": iban });
-        notify("DADOS DO CLIENTE ATUALIZADOS", false);
-        buscarUsuario();
-    };
-
-    window.modificarSaldo = async (tipo) => {
-        const val = prompt("VALOR KZ:");
-        if(!val) return;
-        const n = parseFloat(val);
-        await updateDoc(doc(db, "usuarios", activeUID), { 
-            saldo: increment(tipo === 'add' ? n : -n),
-            extrato: arrayUnion({ data: new Date().toLocaleString(), valor: n, desc: "Ajuste Administrativo", cor: "text-blue-500", status: "Concluído" })
+    function processar(t, i, pasta, status, val) {
+        db.ref(`users/${t}`).once('value', s => {
+            let u = s.val(); u[pasta][i].s = status;
+            let up = { [pasta]: u[pasta] };
+            if(status === 'Aprovado') up.saldo = (u.saldo||0) + val;
+            db.ref(`users/${t}`).update(up).then(ntf);
         });
-        buscarUsuario();
-    };
+    }
 
-    window.toggleStatus = async () => {
-        const u = (await getDoc(doc(db, "usuarios", activeUID))).data();
-        await updateDoc(doc(db, "usuarios", activeUID), { bloqueado: !u.bloqueado });
-        buscarUsuario();
-    };
+    function alterarSaldo(tipo) {
+        let v = parseFloat(prompt("Valor:")); if(!v) return;
+        db.ref(`users/${selUser}`).once('value', s => {
+            let n = tipo === 'add' ? (s.val().saldo||0) + v : (s.val().saldo||0) - v;
+            db.ref(`users/${selUser}`).update({saldo: n}).then(()=>{ntf(); buscarUser();});
+        });
+    }
 
-    window.deleteAccount = async () => {
-        if(confirm("ELIMINAR ESTA CONTA PARA SEMPRE?")) {
-            await deleteDoc(doc(db, "usuarios", activeUID));
-            location.reload();
-        }
-    };
-
+    function mudarSenha() { let p = prompt("Nova Senha:"); if(p) db.ref(`users/${selUser}`).update({pass:p}).then(()=>{ntf(); buscarUser();}); }
+    function bloquear() { db.ref(`users/${selUser}`).update({status: 'Bloqueado'}).then(()=>{ntf(); buscarUser();}); }
+    function deletar() { if(confirm("Apagar conta?")) db.ref(`users/${selUser}`).remove().then(()=>{document.getElementById('user-box').style.display='none'; ntf();}); }
 </script>
 </body>
-                            </html>
-
+                        </html>
