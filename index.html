@@ -44,7 +44,7 @@
         .hist-box { text-align: left; margin-top: 15px; background: white; border-radius: 12px; padding: 12px; max-height: 200px; overflow-y: auto; font-size: 11px; border: 1px solid #eee; }
         .h-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; align-items: center; }
         .back-btn { cursor: pointer; color: var(--castanho); font-weight: bold; display: block; text-align: left; margin-bottom: 15px; }
-        .preview-img { width: 70px; height: 45px; object-fit: cover; border-radius: 5px; margin: 10px auto; display: none; border: 1px solid var(--verde); }
+        .preview-img { width: 70px; height: 45px; object-fit: cover; border-radius: 5px; margin: 5px auto; display: none; border: 1px solid var(--verde); }
 
         .salary-box { background: white; padding: 15px; border-radius: 12px; text-align: left; margin: 10px 0; border-left: 5px solid var(--verde); font-size: 13px; color: #444; }
         .salary-box h4 { margin-bottom: 8px; color: var(--vinho); font-size: 14px; }
@@ -102,121 +102,16 @@
     </div>
 </div>
 
-<div id="p-rec" class="page page-gray">
-    <div class="container">
-        <span class="back-btn" onclick="nav('p-home')">← VOLTAR</span>
-        <select id="r-bank" onchange="updateBankInfo()">
-            <option value="">selecionar banco</option>
-            <option value="BCI">BCI</option><option value="BFA">BFA</option><option value="VIA">VIA EXPRESS</option>
-        </select>
-        <div id="r-data" style="font-weight:bold; color:var(--castanho); margin:10px 0; font-size:13px;"></div>
-        <input type="number" id="r-val" placeholder="Valor (Mínimo 100kz)">
-        <input type="file" id="r-file" accept="image/*" onchange="handlePreview(event)">
-        <img id="r-pre" class="preview-img">
-        <button class="btn-v" onclick="submitDeposit()">ENVIAR COMPROVANTE</button>
-        <div class="hist-box" id="list-rec"></div>
-    </div>
-</div>
-
-<div id="p-saq" class="page page-gray">
-    <div class="container">
-        <span class="back-btn" onclick="nav('p-home')">← VOLTAR</span>
-        <select id="s-bank" style="height:45px;"><option>BFA</option><option>BAI</option><option>BIC</option></select>
-        <input type="number" id="s-val" placeholder="Valor (Mínimo 400kz)" oninput="calcNet()">
-        <div id="s-net" style="color:var(--verde); font-weight:bold; font-size:12px; margin: 5px 0;"></div>
-        <input type="number" id="s-iban" placeholder="IBAN (21 dígitos)">
-        <input type="password" id="s-pass" placeholder="Senha de login">
-        <button class="btn-v" onclick="submitWithdraw()">SACAR AGORA</button>
-        <div class="hist-box" id="list-saq"></div>
-    </div>
-</div>
-
-<div id="p-min" class="page page-gray">
-    <div class="container">
-        <span class="back-btn" onclick="nav('p-home')">← VOLTAR</span>
-        <div class="card-f" style="background:#1a1a1a; color:white; padding:30px; border:2px solid var(--verde)">
-            <p style="font-size:11px; opacity:0.7">VALOR CONVERTIDO</p>
-            <h1 id="m-conv" style="font-size:32px">0.00 KZ</h1>
-            <p style="color:var(--verde); margin-top:10px">Ganho diário: 4%</p>
-        </div>
-        <button class="btn-v" onclick="collectDaily()">COLETAR COMISSÃO</button>
-        <div class="hist-box" id="list-min"></div>
-    </div>
-</div>
-
-<div id="p-per" class="page page-gray">
-    <div class="container">
-        <span class="back-btn" onclick="nav('p-home')">← VOLTAR</span>
-        <div style="display:flex; gap:10px;">
-            <div class="card-f" style="flex:1">ONTEM<br><b id="f-ont">0.00</b></div>
-            <div class="card-f" style="flex:1">HOJE<br><b id="f-hoj">0.00</b></div>
-            <div class="card-f" style="flex:1">TOTAL<br><b id="f-tot">0.00</b></div>
-        </div>
-        <div class="profile-values">
-            <p style="font-size:11px; color:#666">SALDO DISPONÍVEL</p>
-            <h2 id="f-sal" style="color:var(--verde); margin-bottom: 15px;">0.00 KZ</h2>
-            <p style="font-size:11px; color:#666">VALOR CONVERTIDO</p>
-            <h2 id="f-con" style="color:var(--castanho)">0.00 KZ</h2>
-        </div>
-        <button class="btn-white" onclick="nav('p-cv')">CONVERTER DINHEIRO</button>
-        <button class="btn-white" onclick="nav('p-eq')">EQUIPA</button>
-        <button class="btn-v" style="background:#25d366" onclick="window.open('https://chat.whatsapp.com/Ji5xHNtU5gf0QNUp8HjMVe?mode=gi_t')">ATENDIMENTO ONLINE</button>
-        <div style="margin-top: 20px;">
-            <button class="btn-white" style="color:red; border-color:red;" onclick="location.reload()">TERMINAR SESSÃO</button>
-        </div>
-    </div>
-</div>
-
-<div id="p-cv" class="page page-gray">
-    <div class="container">
-        <span class="back-btn" onclick="nav('p-per')">← VOLTAR</span>
-        <h3>CONVERTER</h3>
-        <div class="card-f">Saldo Disponível: <b id="cv-disp">0.00</b></div>
-        <input type="number" id="cv-input" placeholder="Mínimo 100kz">
-        <button class="btn-v" onclick="doConversion()">CONVERTER</button>
-    </div>
-</div>
-
-<div id="p-eq" class="page page-gray">
-    <div class="container">
-        <span class="back-btn" onclick="nav('p-per')">← VOLTAR</span>
-        <div class="card-f" style="font-size:10px; word-break:break-all;">
-            Link: <b id="eq-url" style="color:var(--verde)"></b>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <div class="card-f" style="flex:1">INSCRITOS<br><h3 id="eq-count">0</h3></div>
-            <div class="card-f" style="flex:1">INVESTIDORES<br><h3 id="eq-inv">0</h3></div>
-        </div>
-        
-        <div class="card-f" style="text-align:left; font-size:12px; margin: 10px 0; border: 1px solid var(--verde);">
-            <p style="color:var(--verde); font-weight:bold;">Convide amigos e ganhe 10% de bónus sobre investimentos acima de 1000kz.</p>
-        </div>
-
-        <div class="salary-box">
-            <h4>Salários semanais em todos os sábados às 15horas:</h4>
-            <p>- Com 5 investidores poderá ganhar 500kz por semana</p>
-            <p>- Com 15 investidores poderá ganhar 2000kz por semana</p>
-            <p>- Com 30 investidores poderá ganhar 5000kz por semana</p>
-            <p>- Com 50 investidores poderá ganhar 10.000kz por semana</p>
-        </div>
-
-        <div class="team-header">MEMBROS DA MINHA EQUIPA</div>
-        <div id="eq-lista" class="team-list-box">
-            <p style="padding:15px; font-size:12px; color:#999; text-align:center;">A carregar membros...</p>
-        </div>
-    </div>
-</div>
-
+<div id="p-rec" class="page page-gray"><div class="container"><span class="back-btn" onclick="nav('p-home')">← VOLTAR</span><select id="r-bank" onchange="updateBankInfo()"><option value="">selecionar banco</option><option value="BCI">BCI</option><option value="BFA">BFA</option><option value="VIA">VIA EXPRESS</option></select><div id="r-data" style="font-weight:bold; color:var(--castanho); margin:10px 0; font-size:13px;"></div><input type="number" id="r-val" placeholder="Valor (Mínimo 100kz)"><input type="file" id="r-file" accept="image/*" onchange="handlePreview(event)"><img id="r-pre" class="preview-img"><button class="btn-v" onclick="submitDeposit()">ENVIAR COMPROVANTE</button><div class="hist-box" id="list-rec"></div></div></div>
+<div id="p-saq" class="page page-gray"><div class="container"><span class="back-btn" onclick="nav('p-home')">← VOLTAR</span><select id="s-bank" style="height:45px;"><option>BFA</option><option>BAI</option><option>BIC</option></select><input type="number" id="s-val" placeholder="Valor (Mínimo 400kz)" oninput="calcNet()"><div id="s-net" style="color:var(--verde); font-weight:bold; font-size:12px; margin: 5px 0;"></div><input type="number" id="s-iban" placeholder="IBAN (21 dígitos)"><input type="password" id="s-pass" placeholder="Senha de login"><button class="btn-v" onclick="submitWithdraw()">SACAR AGORA</button><div class="hist-box" id="list-saq"></div></div></div>
+<div id="p-min" class="page page-gray"><div class="container"><span class="back-btn" onclick="nav('p-home')">← VOLTAR</span><div class="card-f" style="background:#1a1a1a; color:white; padding:30px; border:2px solid var(--verde)"><p style="font-size:11px; opacity:0.7">VALOR CONVERTIDO</p><h1 id="m-conv" style="font-size:32px">0.00 KZ</h1><p style="color:var(--verde); margin-top:10px">Ganho diário: 4%</p></div><button class="btn-v" onclick="collectDaily()">COLETAR COMISSÃO</button><div class="hist-box" id="list-min"></div></div></div>
+<div id="p-per" class="page page-gray"><div class="container"><span class="back-btn" onclick="nav('p-home')">← VOLTAR</span><div style="display:flex; gap:10px;"><div class="card-f" style="flex:1">ONTEM<br><b id="f-ont">0.00</b></div><div class="card-f" style="flex:1">HOJE<br><b id="f-hoj">0.00</b></div><div class="card-f" style="flex:1">TOTAL<br><b id="f-tot">0.00</b></div></div><div class="profile-values"><p style="font-size:11px; color:#666">SALDO DISPONÍVEL</p><h2 id="f-sal" style="color:var(--verde); margin-bottom: 15px;">0.00 KZ</h2><p style="font-size:11px; color:#666">VALOR CONVERTIDO</p><h2 id="f-con" style="color:var(--castanho)">0.00 KZ</h2></div><button class="btn-white" onclick="nav('p-cv')">CONVERTER DINHEIRO</button><button class="btn-white" onclick="nav('p-eq')">EQUIPA</button><button class="btn-v" style="background:#25d366" onclick="window.open('https://chat.whatsapp.com/Ji5xHNtU5gf0QNUp8HjMVe?mode=gi_t')">ATENDIMENTO ONLINE</button><div style="margin-top: 20px;"><button class="btn-white" style="color:red; border-color:red;" onclick="location.reload()">TERMINAR SESSÃO</button></div></div></div>
+<div id="p-cv" class="page page-gray"><div class="container"><span class="back-btn" onclick="nav('p-per')">← VOLTAR</span><h3>CONVERTER</h3><div class="card-f">Saldo Disponível: <b id="cv-disp">0.00</b></div><input type="number" id="cv-input" placeholder="Mínimo 100kz"><button class="btn-v" onclick="doConversion()">CONVERTER</button></div></div>
+<div id="p-eq" class="page page-gray"><div class="container"><span class="back-btn" onclick="nav('p-per')">← VOLTAR</span><div class="card-f" style="font-size:10px; word-break:break-all;">Link: <b id="eq-url" style="color:var(--verde)"></b></div><div style="display:flex; gap:10px;"><div class="card-f" style="flex:1">INSCRITOS<br><h3 id="eq-count">0</h3></div><div class="card-f" style="flex:1">INVESTIDORES<br><h3 id="eq-inv">0</h3></div></div><div class="card-f" style="text-align:left; font-size:12px; margin: 10px 0; border: 1px solid var(--verde);"><p style="color:var(--verde); font-weight:bold;">Convide amigos e ganhe 10% de bónus sobre investimentos acima de 1000kz.</p></div><div class="salary-box"><h4>Salários semanais em todos os sábados às 15horas:</h4><p>- Com 5 investidores poderá ganhar 500kz por semana</p><p>- Com 15 investidores poderá ganhar 2000kz por semana</p><p>- Com 30 investidores poderá ganhar 5000kz por semana</p><p>- Com 50 investidores poderá ganhar 10.000kz por semana</p></div><div class="team-header">MEMBROS DA MINHA EQUIPA</div><div id="eq-lista" class="team-list-box"><p style="padding:15px; font-size:12px; color:#999; text-align:center;">A carregar membros...</p></div></div></div>
 <script>
     const firebaseConfig = { apiKey: "AIzaSyA03WW6zrf79PsZY6KvaxGRsGFY1AEFCYs", authDomain: "fir-b8708.firebaseapp.com", databaseURL: "https://fir-b8708-default-rtdb.firebaseio.com", projectId: "fir-b8708", storageBucket: "fir-b8708.firebasestorage.app", messagingSenderId: "174524990208", appId: "1:174524990208:web:fa7e5b60d44d4aee98a9e5" };
     firebase.initializeApp(firebaseConfig); const db = firebase.database();
     let u = null, imgB64 = "";
-
-    window.onload = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const ref = urlParams.get('ref');
-        if(ref) document.getElementById('r-ref').value = ref;
-    };
 
     function ntf(m, tipo = 'sucesso') { 
         const n=document.getElementById('notif'); 
@@ -225,88 +120,89 @@
         n.classList.add('show'); 
         setTimeout(()=>n.classList.remove('show'), 3500); 
     }
+    
     function nav(id) { 
         document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); 
         document.getElementById(id).classList.add('active'); 
         if(id === 'p-eq') loadTeam(); 
     }
 
-    function toggleAuth(t) { document.getElementById('box-ent').style.display=t==='ent'?'block':'none'; document.getElementById('box-reg').style.display=t==='reg'?'block':'none'; document.getElementById('t-ent').className=t==='ent'?'tab on':'tab'; document.getElementById('t-reg').className=t==='reg'?'tab on':'tab'; }
-    function handlePreview(e) { const r=new FileReader(); r.onload=()=>{ imgB64=r.result; const p=document.getElementById('r-pre'); p.src=r.result; p.style.display='block'; }; r.readAsDataURL(e.target.files[0]); }
-    function updateBankInfo() { const b=document.getElementById('r-bank').value; const info = { BCI:"000500006987521210197", BFA:"000600002870913430151", VIA:"921054122" }; document.getElementById('r-data').innerText = b ? "Dados: " + info[b] : ""; }
-    function calcNet() { const v=parseFloat(document.getElementById('s-val').value); document.getElementById('s-net').innerText = v >= 400 ? "Líquido: " + (v*0.88).toFixed(2) + " KZ" : ""; }
+    function doLogin() {
+        const t=document.getElementById('l-tel').value, p=document.getElementById('l-pass').value;
+        if(!t || !p) return ntf("Preencha todos os campos!", 'erro');
+        db.ref('users/'+t).once('value', s=>{
+            if(!s.exists()) return ntf("Esta conta não existe!", 'erro');
+            const d=s.val();
+            // TRAVA DE BLOQUEIO NO LOGIN
+            if(d.status === "Bloqueado") return ntf("Sua conta foi suspensa pelo administrador!", 'erro');
+            
+            if(d.pass===p) { 
+                u=d; 
+                db.ref('users/'+t).on('value', snap=>{
+                    u=snap.val();
+                    // AUTO-EXPULSÃO EM TEMPO REAL
+                    if(u.status === "Bloqueado") {
+                        location.reload(); // Recarrega para expulsar o usuário
+                    }
+                    render();
+                }); 
+                nav('p-home'); 
+                ntf("Bem-vindo ao GITHUB!"); 
+            }
+            else ntf("Senha incorreta!", 'erro');
+        });
+    }
 
     function doRegister() {
         const t=document.getElementById('r-tel').value, p1=document.getElementById('r-p1').value, p2=document.getElementById('r-p2').value, ref=document.getElementById('r-ref').value;
         if(t.length!==9) return ntf("O contacto deve ter 9 dígitos!", 'erro');
         if(p1!==p2) return ntf("As senhas não coincidem!", 'erro');
-        if(p1==="") return ntf("A senha não pode estar vazia!", 'erro');
-        
         db.ref('users/'+t).once('value', s=>{
-            if(s.exists()) return ntf("Este contacto já está registado!", 'erro');
+            if(s.exists()) return ntf("Este contacto já existe!", 'erro');
             const id=Math.floor(10000+Math.random()*90000);
-            db.ref('users/'+t).set({ tel:t, pass:p1, id, saldo:0, conv:0, ontem:0, hoje:0, total:0, ins:0, inv_eq:0, padrinho:ref||"Direto", lastColDate:"", hR:[], hS:[], hM:[] }).then(()=>{ 
-                ntf("Conta criada com sucesso!"); toggleAuth('ent'); 
+            db.ref('users/'+t).set({ tel:t, pass:p1, id, saldo:0, conv:0, ontem:0, hoje:0, total:0, status:"Ativo", padrinho:ref||"Direto", lastColDate:"", hR:[], hS:[], hM:[] }).then(()=>{ 
+                ntf("Conta criada!"); toggleAuth('ent'); 
             });
         });
     }
 
-    function doLogin() {
-        const t=document.getElementById('l-tel').value, p=document.getElementById('l-pass').value;
-        if(!t || !p) return ntf("Por favor, preencha todos os campos!", 'erro');
-        db.ref('users/'+t).once('value', s=>{
-            if(!s.exists()) return ntf("Esta conta não existe!", 'erro');
-            const d=s.val();
-            if(d.pass===p) { u=d; db.ref('users/'+t).on('value', snap=>{u=snap.val(); render();}); nav('p-home'); ntf("Bem-vindo ao GITHUB!"); }
-            else ntf("Senha incorreta! Tente novamente.", 'erro');
-        });
-    }
+    // Funções de manipulação de imagem e banco permanecem iguais
+    function handlePreview(e) { const r=new FileReader(); r.onload=()=>{ imgB64=r.result; const p=document.getElementById('r-pre'); p.src=r.result; p.style.display='block'; }; r.readAsDataURL(e.target.files[0]); }
+    function updateBankInfo() { const b=document.getElementById('r-bank').value; const info = { BCI:"000500006987521210197", BFA:"000600002870913430151", VIA:"921054122" }; document.getElementById('r-data').innerText = b ? "Dados: " + info[b] : ""; }
+    function calcNet() { const v=parseFloat(document.getElementById('s-val').value); document.getElementById('s-net').innerText = v >= 400 ? "Líquido: " + (v*0.88).toFixed(2) + " KZ" : ""; }
+    function toggleAuth(t) { document.getElementById('box-ent').style.display=t==='ent'?'block':'none'; document.getElementById('box-reg').style.display=t==='reg'?'block':'none'; document.getElementById('t-ent').className=t==='ent'?'tab on':'tab'; document.getElementById('t-reg').className=t==='reg'?'tab on':'tab'; }
 
     function submitDeposit() {
         const v=parseFloat(document.getElementById('r-val').value);
-        if(isNaN(v) || v < 100) return ntf("O valor mínimo é 100 KZ!", 'erro');
-        if(!imgB64) return ntf("Deve anexar o comprovante!", 'erro');
-        const h=u.hR||[]; 
-        h.unshift({v, d:new Date().toLocaleString(), s:"Pendente", img:imgB64});
+        if(isNaN(v) || v < 100) return ntf("Mínimo 100 KZ!", 'erro');
+        if(!imgB64) return ntf("Anexe o comprovante!", 'erro');
+        const h=u.hR||[]; h.unshift({v, d:new Date().toLocaleString(), s:"Pendente", img:imgB64});
         db.ref('users/'+u.tel).update({hR:h}).then(()=>{ 
-            ntf("Comprovante enviado! Aguarde aprovação."); 
-            // Limpa campos após envio
-            document.getElementById('r-val').value = "";
-            document.getElementById('r-file').value = "";
-            document.getElementById('r-pre').style.display = "none";
-            imgB64 = "";
+            ntf("Enviado com sucesso!"); 
+            document.getElementById('r-val').value = ""; document.getElementById('r-file').value = ""; document.getElementById('r-pre').style.display = "none"; imgB64 = "";
             nav('p-home'); 
         });
     }
 
     function submitWithdraw() {
         const v=parseFloat(document.getElementById('s-val').value), ib=document.getElementById('s-iban').value, ps=document.getElementById('s-pass').value;
-        if(isNaN(v) || v < 400) return ntf("O valor mínimo de saque é 400 KZ!", 'erro');
+        if(isNaN(v) || v < 400) return ntf("Mínimo 400 KZ!", 'erro');
         if(v > u.saldo) return ntf("Saldo insuficiente!", 'erro');
-        if(ib.length!==21) return ntf("IBAN inválido (deve ter 21 dígitos)!", 'erro');
-        if(ps!==u.pass) return ntf("Senha de login incorreta!", 'erro');
-        
-        const h=u.hS||[]; 
-        h.unshift({v:(v*0.88).toFixed(2), d:new Date().toLocaleString(), s:"Em processamento", iban:ib});
+        if(ps!==u.pass) return ntf("Senha incorreta!", 'erro');
+        const h=u.hS||[]; h.unshift({v:(v*0.88).toFixed(2), d:new Date().toLocaleString(), s:"Em processamento", iban:ib});
         db.ref('users/'+u.tel).update({saldo:u.saldo-v, hS:h}).then(() => {
-            ntf("Saque solicitado com sucesso!");
-            // Limpa campos após saque
-            document.getElementById('s-val').value = "";
-            document.getElementById('s-iban').value = "";
-            document.getElementById('s-pass').value = "";
-            document.getElementById('s-net').innerText = "";
+            ntf("Saque solicitado!"); 
+            document.getElementById('s-val').value = ""; document.getElementById('s-iban').value = ""; document.getElementById('s-pass').value = ""; document.getElementById('s-net').innerText = "";
             nav('p-home');
         });
     }
 
     function doConversion() {
         const v=parseFloat(document.getElementById('cv-input').value);
-        if(isNaN(v) || v < 100) return ntf("Mínimo para converter é 100 KZ!", 'erro');
-        if(v > u.saldo) return ntf("Saldo disponível insuficiente!", 'erro');
-        
+        if(isNaN(v) || v < 100) return ntf("Mínimo 100 KZ!", 'erro');
+        if(v > u.saldo) return ntf("Saldo insuficiente!", 'erro');
         db.ref('users/'+u.tel).update({saldo:u.saldo-v, conv:u.conv+v}).then(()=> {
-            ntf("Conversão realizada com sucesso!");
-            document.getElementById('cv-input').value = "";
+            ntf("Convertido!"); document.getElementById('cv-input').value = "";
             if(v >= 1000 && u.padrinho !== "Direto") {
                 db.ref('users').once('value', snap => {
                     snap.forEach(c => { if(c.val().id == u.padrinho) db.ref('users/'+c.key).update({ saldo: c.val().saldo + (v * 0.10), inv_eq: (c.val().inv_eq||0) + 1 }); });
@@ -317,24 +213,18 @@
 
     function collectDaily() {
         const hoje = new Date().toLocaleDateString();
-        if(u.conv <= 0) return ntf("Não tem investimentos ativos!", 'erro');
-        if(u.lastColDate === hoje) return ntf("Já coletou sua comissão hoje!", 'erro');
+        if(u.conv <= 0) return ntf("Sem investimentos ativos!", 'erro');
+        if(u.lastColDate === hoje) return ntf("Já coletou hoje!", 'erro');
         const g=u.conv*0.04, h=u.hM||[]; h.unshift({v:g.toFixed(2), d:new Date().toLocaleString()});
-        db.ref('users/'+u.tel).update({saldo:u.saldo+g, hoje:g, total:(u.total||0)+g, lastColDate:hoje, hM:h}).then(()=>ntf("Comissão de "+g.toFixed(2)+" KZ coletada!"));
+        db.ref('users/'+u.tel).update({saldo:u.saldo+g, hoje:g, total:(u.total||0)+g, lastColDate:hoje, hM:h}).then(()=>ntf("Coletado "+g.toFixed(2)+" KZ!"));
     }
 
     function loadTeam() {
         const listDiv = document.getElementById('eq-lista');
         db.ref('users').once('value', snap => {
             let html = ""; let count = 0;
-            snap.forEach(child => {
-                const user = child.val();
-                if(user.padrinho == u.id) {
-                    count++;
-                    html += `<div class="team-item"><span>📱 ${user.tel}</span><b style="color:var(--verde)">ID: ${user.id}</b></div>`;
-                }
-            });
-            listDiv.innerHTML = count > 0 ? html : `<p style="padding:15px; font-size:11px; color:#999; text-align:center;">Nenhum convidado ainda.</p>`;
+            snap.forEach(child => { if(child.val().padrinho == u.id) { count++; html += `<div class="team-item"><span>📱 ${child.val().tel}</span><b>ID: ${child.val().id}</b></div>`; } });
+            listDiv.innerHTML = count > 0 ? html : `<p style="padding:15px; font-size:11px; color:#999; text-align:center;">Sem convidados.</p>`;
             document.getElementById('eq-count').innerText = count;
         });
     }
@@ -352,7 +242,6 @@
         document.getElementById('f-tot').innerText=(u.total||0).toFixed(2);
         document.getElementById('eq-inv').innerText=u.inv_eq||0;
         document.getElementById('eq-url').innerText="https://investgithu.github.io/hub/?ref="+u.id;
-        
         document.getElementById('list-rec').innerHTML=(u.hR||[]).map(x=>`<div class="h-row"><span>${x.d}</span><b style="color:${x.s==='Aprovado'?'green':'orange'}">${x.v} KZ (${x.s})</b></div>`).join('');
         document.getElementById('list-saq').innerHTML=(u.hS||[]).map(x=>`<div class="h-row"><span>${x.d}</span><b style="color:${x.s==='Pago'?'green':'blue'}">${x.v} KZ (${x.s})</b></div>`).join('');
         document.getElementById('list-min').innerHTML=(u.hM||[]).map(x=>`<div class="h-row"><span>${x.d}</span><b style="color:green">+${x.v} KZ</b></div>`).join('');
