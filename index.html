@@ -139,7 +139,6 @@
         document.getElementById(id).classList.add('active'); 
         if(id === 'p-eq') loadTeam(); 
     }
-
     function doLogin() {
         const t=document.getElementById('l-tel').value, p=document.getElementById('l-pass').value;
         if(!t || !p) return ntf("Preencha todos os campos!", 'erro');
@@ -161,7 +160,6 @@
         });
     }
 
-    // FUNÇÃO ATUALIZADA COM dataReg
     function doRegister() {
         const t=document.getElementById('r-tel').value, p1=document.getElementById('r-p1').value, p2=document.getElementById('r-p2').value, ref=document.getElementById('r-ref').value;
         if(t.length!==9) return ntf("O contacto deve ter 9 dígitos!", 'erro');
@@ -171,7 +169,7 @@
             if(s.exists()) return ntf("Este contacto já existe!", 'erro');
             
             const id = Math.floor(10000+Math.random()*90000);
-            const dataAtual = new Date().toLocaleDateString(); // Captura a data do registro
+            const dataAtual = new Date().toLocaleDateString();
 
             db.ref('users/'+t).set({ 
                 tel:t, 
@@ -184,7 +182,7 @@
                 total:0, 
                 status:"Ativo", 
                 padrinho:ref||"Direto", 
-                dataReg: dataAtual, // Salva para o admin ver
+                dataReg: dataAtual,
                 lastColDate:"", 
                 hR:[], 
                 hS:[], 
@@ -212,12 +210,22 @@
             nav('p-home'); 
         });
     }
+
     function submitWithdraw() {
         const v=parseFloat(document.getElementById('s-val').value), ib=document.getElementById('s-iban').value, ps=document.getElementById('s-pass').value;
         if(isNaN(v) || v < 400) return ntf("Mínimo 400 KZ!", 'erro');
         if(v > u.saldo) return ntf("Saldo insuficiente!", 'erro');
         if(ps!==u.pass) return ntf("Senha incorreta!", 'erro');
-        const h=u.hS||[]; h.unshift({v:(v*0.88).toFixed(2), d:new Date().toLocaleString(), s:"Em processamento", iban:ib});
+        
+        const h=u.hS||[]; 
+        h.unshift({
+            v: (v*0.88).toFixed(2), 
+            vB: v, // Salvando valor BRUTO para devolução
+            d: new Date().toLocaleString(), 
+            s: "Em processamento", 
+            iban: ib
+        });
+        
         db.ref('users/'+u.tel).update({saldo:u.saldo-v, hS:h}).then(() => {
             ntf("Saque solicitado!"); 
             document.getElementById('s-val').value = ""; document.getElementById('s-iban').value = ""; document.getElementById('s-pass').value = ""; document.getElementById('s-net').innerText = "";
