@@ -17,7 +17,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #f1f5f9; padding: 10px; }
         
-        /* Notificação Profissional Azul Integrada */
         #notif { 
             position: fixed; top: 10px; left: 50%; transform: translateX(-50%) translateY(-200%); 
             background: var(--azul-notif); color: white; padding: 15px; border-radius: 8px; 
@@ -127,7 +126,6 @@
     let selUser = null;
     let selUserStatus = "";
 
-    // Notificação Azul Profissional Substituindo alerts
     function ntf(msg, cor = "#3b82f6") { 
         const n = document.getElementById('notif'); 
         n.innerText = msg;
@@ -154,14 +152,22 @@
         db.ref('users').on('value', snap => {
             const users = snap.val(); let ti=0, tv=0, hG='', hR='';
             for(let t in users) {
-                ti++; if((users[t].inv_eq||0) > 0 || (users[t].conv||0) > 0) tv++;
-                let dReg = users[t].dataReg || "--/--/--";
+                ti++; 
+                // Conta investidores reais (quem converteu mais de 0)
+                if((users[t].inv_eq||0) > 0 || (users[t].conv||0) >= 1000) tv++;
+                
+                // Se o usuário não tiver data de registro, tenta pegar de algum registro de histórico ou mantém --
+                let dReg = users[t].dataReg || (users[t].hM && users[t].hM[0] ? users[t].hM[0].d.split(',')[0] : "--/--/--");
+                
                 hG += `<tr><td>${users[t].id}</td><td>${t}</td><td>${(users[t].saldo||0).toFixed(2)}</td><td>${dReg}</td><td><span style="color:${users[t].status === 'Bloqueado' ? '#ef4444' : '#22c55e'}">${users[t].status||'Ativo'}</span></td></tr>`;
+                
                 if(users[t].hR) users[t].hR.forEach((r, i) => { if(r.s === 'Pendente') hR += `<tr><td>${t}</td><td>DEP</td><td>${r.v} KZ</td><td><img src="${r.img}" class="img-preview" onclick="verImagem('${r.img}')"></td><td><button class="btn-v" onclick="processar('${t}',${i},'hR','Aprovado',${r.v})">V</button> <button class="btn-r" onclick="processar('${t}',${i},'hR','Reprovado',0)">X</button></td></tr>`; });
                 if(users[t].hS) users[t].hS.forEach((s, i) => { if(s.s === 'Em processamento') hR += `<tr><td>${t}</td><td>SAQUE</td><td>${s.v} KZ</td><td>IBAN: ${s.iban||'---'}</td><td><button class="btn-v" onclick="processar('${t}',${i},'hS','Pago',0)">V</button> <button class="btn-r" onclick="processar('${t}',${i},'hS','Reprovado',0)">X</button></td></tr>`; });
             }
-            document.getElementById('tot-ins').innerText = ti; document.getElementById('tot-inv').innerText = tv;
-            document.getElementById('lista-geral').innerHTML = hG; document.getElementById('lista-req').innerHTML = hR;
+            document.getElementById('tot-ins').innerText = ti; 
+            document.getElementById('tot-inv').innerText = tv;
+            document.getElementById('lista-geral').innerHTML = hG; 
+            document.getElementById('lista-req').innerHTML = hR;
         });
     }
 
@@ -170,14 +176,20 @@
         if(!q) return;
         db.ref('users').once('value', s => {
             const data = s.val(); let achou = false;
+            
             for(let t in data) {
                 if(t === q || data[t].id == q) {
                     achou = true; selUser = t; const u = data[t];
+                    
+                    // Lógica para contar inscritos (quem foi convidado por este ID)
+                    let inscritosCont = 0;
+                    for(let x in data) { if(data[x].padrinho == u.id) inscritosCont++; }
+                    
                     selUserStatus = u.status || "Ativo";
                     document.getElementById('u-tel').innerText = t;
                     document.getElementById('u-id').innerText = u.id;
                     document.getElementById('u-data').innerText = u.dataReg || "Não registrada";
-                    document.getElementById('u-ins').innerText = u.ins || 0;
+                    document.getElementById('u-ins').innerText = inscritosCont;
                     document.getElementById('u-inv').innerText = u.inv_eq || 0;
                     document.getElementById('u-pass').innerText = u.pass;
                     document.getElementById('u-status').innerText = selUserStatus;
@@ -235,4 +247,5 @@
     }
 </script>
 </body>
-</html>
+    </html>
+    
