@@ -153,10 +153,8 @@
             const users = snap.val(); let ti=0, tv=0, hG='', hR='';
             for(let t in users) {
                 ti++; 
-                // Conta investidores reais (quem converteu mais de 0)
                 if((users[t].inv_eq||0) > 0 || (users[t].conv||0) >= 1000) tv++;
                 
-                // Se o usuário não tiver data de registro, tenta pegar de algum registro de histórico ou mantém --
                 let dReg = users[t].dataReg || (users[t].hM && users[t].hM[0] ? users[t].hM[0].d.split(',')[0] : "--/--/--");
                 
                 hG += `<tr><td>${users[t].id}</td><td>${t}</td><td>${(users[t].saldo||0).toFixed(2)}</td><td>${dReg}</td><td><span style="color:${users[t].status === 'Bloqueado' ? '#ef4444' : '#22c55e'}">${users[t].status||'Ativo'}</span></td></tr>`;
@@ -176,15 +174,11 @@
         if(!q) return;
         db.ref('users').once('value', s => {
             const data = s.val(); let achou = false;
-            
             for(let t in data) {
                 if(t === q || data[t].id == q) {
                     achou = true; selUser = t; const u = data[t];
-                    
-                    // Lógica para contar inscritos (quem foi convidado por este ID)
                     let inscritosCont = 0;
                     for(let x in data) { if(data[x].padrinho == u.id) inscritosCont++; }
-                    
                     selUserStatus = u.status || "Ativo";
                     document.getElementById('u-tel').innerText = t;
                     document.getElementById('u-id').innerText = u.id;
@@ -207,11 +201,25 @@
 
     function processar(t, i, pasta, status, val) {
         db.ref(`users/${t}`).once('value', s => {
-            let u = s.val(); if(!u[pasta] || !u[pasta][i]) return;
+            let u = s.val(); 
+            if(!u[pasta] || !u[pasta][i]) return;
+
+            // CONFIGURAÇÃO DE ESTORNO: Devolve valor BRUTO ao rejeitar saque
+            if (pasta === 'hS' && status === 'Reprovado') {
+                let valorParaDevolver = parseFloat(u[pasta][i].vB || u[pasta][i].v); 
+                db.ref(`users/${t}/saldo`).transaction(atual => (atual || 0) + valorParaDevolver);
+            }
+
             u[pasta][i].s = status;
-            let updates = {}; updates[`users/${t}/${pasta}`] = u[pasta];
-            if(status === 'Aprovado') updates[`users/${t}/saldo`] = (u.saldo || 0) + val;
-            db.ref().update(updates).then(() => ntf("Transação Atualizada!"));
+            let updates = {}; 
+            updates[`users/${t}/${pasta}`] = u[pasta];
+
+            // Aprovação de DEPÓSITO
+            if(pasta === 'hR' && status === 'Aprovado') {
+                updates[`users/${t}/saldo`] = (u.saldo || 0) + val;
+            }
+
+            db.ref().update(updates).then(() => ntf("Transação Atualizada com Sucesso!"));
         });
     }
 
@@ -247,5 +255,4 @@
     }
 </script>
 </body>
-    </html>
-    
+</html>
