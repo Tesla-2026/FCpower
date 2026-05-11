@@ -7,100 +7,114 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
     <style>
-        :root { --verde: #22c55e; --vermelho: #ef4444; --bg: #0f172a; --card: #1e293b; }
+        :root { 
+            --verde: #22c55e; 
+            --vermelho: #ef4444; 
+            --bg: #0f172a; 
+            --card: #1e293b; 
+            --azul-notif: #3b82f6; 
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #f1f5f9; padding: 10px; }
         
-        #notif { position: fixed; top: 10px; left: 50%; transform: translateX(-50%) translateY(-200%); background: var(--verde); color: white; padding: 15px; border-radius: 8px; transition: 0.5s; z-index: 10000; width: 90%; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        /* Notificação Profissional Azul Integrada */
+        #notif { 
+            position: fixed; top: 10px; left: 50%; transform: translateX(-50%) translateY(-200%); 
+            background: var(--azul-notif); color: white; padding: 15px; border-radius: 8px; 
+            transition: 0.5s; z-index: 10000; width: 90%; text-align: center; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6); font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.3);
+            letter-spacing: 1px;
+        }
         .show { transform: translateX(-50%) translateY(0) !important; }
 
         .card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-top: 4px solid var(--verde); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        input, button { padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #334155; width: 100%; font-weight: bold; }
-        button { cursor: pointer; color: white; border: none; text-transform: uppercase; font-size: 11px; }
+        input, button { padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #334155; width: 100%; font-weight: bold; outline: none; }
+        input { background: #0f172a; color: white; }
+        button { cursor: pointer; color: white; border: none; text-transform: uppercase; font-size: 11px; transition: 0.3s; }
+        button:active { transform: scale(0.95); }
         .btn-v { background: var(--verde); }
         .btn-r { background: var(--vermelho); }
         .btn-b { background: #3b82f6; }
         
         .table-container { width: 100%; overflow-x: auto; margin-top: 10px; border-radius: 8px; background: #0f172a; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; font-size: 11px; }
-        th, td { padding: 10px; border-bottom: 1px solid #334155; text-align: left; }
+        table { width: 100%; border-collapse: collapse; min-width: 550px; font-size: 11px; }
+        th, td { padding: 12px; border-bottom: 1px solid #334155; text-align: left; }
+        th { background: #1e293b; color: var(--azul-notif); }
         
-        .img-preview { width: 50px; height: 50px; object-fit: cover; border: 2px solid var(--verde); border-radius: 6px; cursor: zoom-in; }
+        .img-preview { width: 45px; height: 45px; object-fit: cover; border: 2px solid var(--verde); border-radius: 6px; cursor: zoom-in; }
+        #modal-img { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 20000; justify-content: center; align-items: center; }
+        #modal-img img { max-width: 90%; max-height: 80%; border: 2px solid white; }
 
-        #modal-img { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 20000; justify-content: center; align-items: center; flex-direction: column; }
-        #modal-img img { max-width: 90%; max-height: 80%; border: 3px solid white; border-radius: 10px; }
-        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 30px; color: white; cursor: pointer; }
-
-        #login-box { text-align: center; margin-top: 20vh; padding: 20px; }
+        #login-box { text-align: center; margin-top: 15vh; padding: 25px; max-width: 400px; margin-left: auto; margin-right: auto; }
         .grid-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        
-        /* Estilo para info de equipe */
-        .equipa-box { display: flex; justify-content: space-between; background: #0f172a; padding: 10px; border-radius: 8px; margin: 10px 0; border-left: 3px solid #3b82f6; }
+        .equipa-box { display: flex; justify-content: space-between; background: #0f172a; padding: 10px; border-radius: 8px; margin: 10px 0; border-left: 4px solid var(--azul-notif); }
+        .date-badge { font-size: 10px; background: #334155; padding: 3px 8px; border-radius: 5px; color: #60a5fa; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="notif">Ação Processada com Sucesso!</div>
+    <div id="notif">Mensagem do Sistema</div>
 
     <div id="modal-img" onclick="fecharModal()">
-        <span class="close-modal">&times;</span>
         <img id="img-full" src="">
     </div>
 
     <div id="login-box">
-        <h2 style="letter-spacing: 2px;">PAINEL GITHUB ADMIN</h2>
-        <input type="password" id="m-key" placeholder="Introduza a Chave ABS...">
-        <button class="btn-v" onclick="verificarAcesso()">ENTRAR NO SISTEMA</button>
+        <h2 style="letter-spacing: 3px; color: var(--azul-notif); margin-bottom: 20px;">ADMIN MASTER</h2>
+        <div class="card" style="border-top-color: var(--azul-notif);">
+            <input type="password" id="m-key" placeholder="Chave de Acesso ABS">
+            <button class="btn-b" onclick="verificarAcesso()">AUTENTICAR</button>
+        </div>
     </div>
 
     <div id="main-admin" style="display: none;">
-        <div class="card" style="display: flex; justify-content: space-around; text-align: center;">
-            <div>Inscritos GERAL<br><h2 id="tot-ins">0</h2></div>
-            <div>Investidores GERAL<br><h2 id="tot-inv">0</h2></div>
+        <div class="card" style="display: flex; justify-content: space-around; text-align: center; border-top-color: var(--azul-notif);">
+            <div>Inscritos<br><h2 id="tot-ins" style="color: var(--azul-notif)">0</h2></div>
+            <div>Investidores<br><h2 id="tot-inv" style="color: var(--verde)">0</h2></div>
         </div>
 
         <div class="card">
-            <h4>Pesquisar Usuário</h4>
-            <input type="text" id="q-user" placeholder="ID ou Contacto">
-            <button class="btn-b" onclick="buscarUser()">PESQUISAR</button>
+            <h4 style="margin-bottom: 10px;">Gestão de Usuário</h4>
+            <input type="text" id="q-user" placeholder="Digite ID ou Telefone">
+            <button class="btn-b" onclick="buscarUser()">LOCALIZAR CONTA</button>
             
             <div id="user-box" style="display:none; margin-top:15px; padding:15px; background:#1e293b; border-radius:10px; border: 1px solid #334155;">
-                <p>User: <b id="u-tel" style="color:var(--verde)"></b> | ID: <b id="u-id"></b></p>
+                <p>Usuário: <b id="u-tel" style="color:var(--verde)"></b> | ID: <b id="u-id"></b></p>
+                <p style="margin: 8px 0;"><span class="date-badge">REGISTRO: <span id="u-data">--/--/----</span></span></p>
                 
                 <div class="equipa-box">
-                    <div>Convidados: <b id="u-ins" style="color:#3b82f6">0</b></div>
-                    <div>Investidores: <b id="u-inv" style="color:var(--verde)">0</b></div>
+                    <div>Rede: <b id="u-ins" style="color:var(--azul-notif)">0</b></div>
+                    <div>Ativos: <b id="u-inv" style="color:var(--verde)">0</b></div>
                 </div>
-
-                <p>Senha: <b id="u-pass"></b> | Status: <b id="u-status"></b></p>
-                <p>IBAN: <b id="u-iban" style="color:#60a5fa"></b></p>
-                <p>Saldo: <b id="u-saldo" style="color:yellow"></b></p>
+                <p>Acesso: <b id="u-pass"></b> | Status: <b id="u-status"></b></p>
+                <p>Saldo Atual: <b id="u-saldo" style="color:#fbbf24">0.00 KZ</b></p>
                 
                 <div class="grid-actions">
-                    <button class="btn-v" onclick="alterarSaldo('add')">+ Saldo</button>
-                    <button class="btn-r" onclick="alterarSaldo('rem')">- Saldo</button>
-                    <button style="background:#f59e0b" onclick="mudarSenha()">Nova Senha</button>
-                    <button class="btn-b" id="lock-btn" onclick="bloquear()">Bloquear</button>
-                    <button class="btn-r" style="grid-column: span 2;" onclick="deletar()">ELIMINAR CONTA</button>
+                    <button class="btn-v" onclick="alterarSaldo('add')">+ SALDO</button>
+                    <button class="btn-r" onclick="alterarSaldo('rem')">- SALDO</button>
+                    <button style="background:#6366f1" onclick="mudarSenha()">EDITAR SENHA</button>
+                    <button class="btn-b" id="lock-btn" onclick="toggleBloqueio()">BLOQUEAR</button>
+                    <button class="btn-r" style="grid-column: span 2; margin-top: 5px; opacity: 0.8;" onclick="deletar()">APAGAR CONTA DEFINITIVAMENTE</button>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h4 style="color:var(--verde)">Solicitações Pendentes</h4>
+            <h4 style="color:var(--verde)">Solicitações Financeiras</h4>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Usuário</th><th>Tipo</th><th>Valor</th><th>Comprovativo</th><th>Ações</th></tr></thead>
+                    <thead><tr><th>Usuário</th><th>Tipo</th><th>Valor</th><th>Prova</th><th>Ação</th></tr></thead>
                     <tbody id="lista-req"></tbody>
                 </table>
             </div>
         </div>
 
-        <div class="card">
-            <h4>Lista de Contactos</h4>
-            <div class="table-container" style="max-height: 300px;">
+        <div class="card" style="border-top-color: #64748b;">
+            <h4>Base de Dados de Contactos</h4>
+            <div class="table-container" style="max-height: 350px;">
                 <table>
-                    <thead><tr><th>ID</th><th>Contacto</th><th>Saldo</th><th>Status</th></tr></thead>
+                    <thead><tr><th>ID</th><th>Contacto</th><th>Saldo</th><th>Data</th><th>Status</th></tr></thead>
                     <tbody id="lista-geral"></tbody>
                 </table>
             </div>
@@ -109,9 +123,19 @@
 
 <script>
     const firebaseConfig = { apiKey: "AIzaSyA03WW6zrf79PsZY6KvaxGRsGFY1AEFCYs", authDomain: "fir-b8708.firebaseapp.com", databaseURL: "https://fir-b8708-default-rtdb.firebaseio.com", projectId: "fir-b8708", storageBucket: "fir-b8708.firebasestorage.app", messagingSenderId: "174524990208", appId: "1:174524990208:web:fa7e5b60d44d4aee98a9e5" };
-    firebase.initializeApp(firebaseConfig); const db = firebase.database(); let selUser = null;
+    firebase.initializeApp(firebaseConfig); const db = firebase.database(); 
+    let selUser = null;
+    let selUserStatus = "";
 
-    function ntf() { const n = document.getElementById('notif'); n.classList.add('show'); setTimeout(()=>n.classList.remove('show'), 2500); }
+    // Notificação Azul Profissional Substituindo alerts
+    function ntf(msg, cor = "#3b82f6") { 
+        const n = document.getElementById('notif'); 
+        n.innerText = msg;
+        n.style.background = cor;
+        n.classList.add('show'); 
+        setTimeout(()=>n.classList.remove('show'), 3000); 
+    }
+
     function verImagem(src) { document.getElementById('img-full').src = src; document.getElementById('modal-img').style.display = 'flex'; }
     function fecharModal() { document.getElementById('modal-img').style.display = 'none'; }
 
@@ -119,18 +143,22 @@
         if(document.getElementById('m-key').value === 'ABS..943') {
             document.getElementById('login-box').style.display = 'none';
             document.getElementById('main-admin').style.display = 'block';
+            ntf("Acesso Concedido. Bem-vindo!");
             carregarDados();
-        } else { alert("Chave ABS Incorreta!"); }
+        } else { 
+            ntf("ERRO: Chave ABS Incorreta!", "#ef4444"); 
+        }
     }
 
     function carregarDados() {
         db.ref('users').on('value', snap => {
             const users = snap.val(); let ti=0, tv=0, hG='', hR='';
             for(let t in users) {
-                ti++; if(users[t].inv_eq > 0 || users[t].conv > 0) tv++;
-                hG += `<tr><td>${users[t].id}</td><td>${t}</td><td>${(users[t].saldo||0).toFixed(2)}</td><td>${users[t].status||'Ativo'}</td></tr>`;
-                (users[t].hR || []).forEach((r, i) => { if(r.s === 'Pendente') hR += `<tr><td>${t}</td><td>DEP</td><td>${r.v} KZ</td><td><img src="${r.img}" class="img-preview" onclick="verImagem('${r.img}')"></td><td><button class="btn-v" onclick="processar('${t}',${i},'hR','Aprovado',${r.v})">V</button><button class="btn-r" onclick="processar('${t}',${i},'hR','Reprovado',0)">X</button></td></tr>`; });
-                (users[t].hS || []).forEach((s, i) => { if(s.s === 'Em processamento') hR += `<tr><td>${t}</td><td>SAQUE</td><td>${s.v} KZ</td><td>IBAN: ${s.iban||'---'}</td><td><button class="btn-v" onclick="processar('${t}',${i},'hS','Pago',0)">V</button><button class="btn-r" onclick="processar('${t}',${i},'hS','Reprovado',0)">X</button></td></tr>`; });
+                ti++; if((users[t].inv_eq||0) > 0 || (users[t].conv||0) > 0) tv++;
+                let dReg = users[t].dataReg || "--/--/--";
+                hG += `<tr><td>${users[t].id}</td><td>${t}</td><td>${(users[t].saldo||0).toFixed(2)}</td><td>${dReg}</td><td><span style="color:${users[t].status === 'Bloqueado' ? '#ef4444' : '#22c55e'}">${users[t].status||'Ativo'}</span></td></tr>`;
+                if(users[t].hR) users[t].hR.forEach((r, i) => { if(r.s === 'Pendente') hR += `<tr><td>${t}</td><td>DEP</td><td>${r.v} KZ</td><td><img src="${r.img}" class="img-preview" onclick="verImagem('${r.img}')"></td><td><button class="btn-v" onclick="processar('${t}',${i},'hR','Aprovado',${r.v})">V</button> <button class="btn-r" onclick="processar('${t}',${i},'hR','Reprovado',0)">X</button></td></tr>`; });
+                if(users[t].hS) users[t].hS.forEach((s, i) => { if(s.s === 'Em processamento') hR += `<tr><td>${t}</td><td>SAQUE</td><td>${s.v} KZ</td><td>IBAN: ${s.iban||'---'}</td><td><button class="btn-v" onclick="processar('${t}',${i},'hS','Pago',0)">V</button> <button class="btn-r" onclick="processar('${t}',${i},'hS','Reprovado',0)">X</button></td></tr>`; });
             }
             document.getElementById('tot-ins').innerText = ti; document.getElementById('tot-inv').innerText = tv;
             document.getElementById('lista-geral').innerHTML = hG; document.getElementById('lista-req').innerHTML = hR;
@@ -139,46 +167,72 @@
 
     function buscarUser() {
         const q = document.getElementById('q-user').value;
+        if(!q) return;
         db.ref('users').once('value', s => {
-            const data = s.val();
+            const data = s.val(); let achou = false;
             for(let t in data) {
                 if(t === q || data[t].id == q) {
-                    selUser = t; const u = data[t];
+                    achou = true; selUser = t; const u = data[t];
+                    selUserStatus = u.status || "Ativo";
                     document.getElementById('u-tel').innerText = t;
                     document.getElementById('u-id').innerText = u.id;
-                    document.getElementById('u-ins').innerText = u.ins || 0; // Inscritos da equipa dele
-                    document.getElementById('u-inv').innerText = u.inv_eq || 0; // Investidores da equipa dele
+                    document.getElementById('u-data').innerText = u.dataReg || "Não registrada";
+                    document.getElementById('u-ins').innerText = u.ins || 0;
+                    document.getElementById('u-inv').innerText = u.inv_eq || 0;
                     document.getElementById('u-pass').innerText = u.pass;
-                    document.getElementById('u-status').innerText = u.status || "Ativo";
-                    document.getElementById('u-iban').innerText = u.lastIban || "---";
+                    document.getElementById('u-status').innerText = selUserStatus;
+                    document.getElementById('u-status').style.color = selUserStatus === "Bloqueado" ? "#ef4444" : "#22c55e";
                     document.getElementById('u-saldo').innerText = (u.saldo||0).toFixed(2) + " KZ";
+                    document.getElementById('lock-btn').innerText = selUserStatus === "Bloqueado" ? "DESBLOQUEAR AGORA" : "BLOQUEAR USUÁRIO";
+                    document.getElementById('lock-btn').className = selUserStatus === "Bloqueado" ? "btn-v" : "btn-b";
                     document.getElementById('user-box').style.display = 'block';
+                    ntf("Usuário Localizado!");
                     return;
                 }
-            } alert("Usuário não encontrado!");
+            } if(!achou) ntf("ERRO: Usuário não encontrado!", "#ef4444");
         });
     }
 
     function processar(t, i, pasta, status, val) {
         db.ref(`users/${t}`).once('value', s => {
-            let u = s.val(); u[pasta][i].s = status;
-            let up = { [pasta]: u[pasta] };
-            if(status === 'Aprovado') up.saldo = (u.saldo||0) + val;
-            db.ref(`users/${t}`).update(up).then(ntf);
+            let u = s.val(); if(!u[pasta] || !u[pasta][i]) return;
+            u[pasta][i].s = status;
+            let updates = {}; updates[`users/${t}/${pasta}`] = u[pasta];
+            if(status === 'Aprovado') updates[`users/${t}/saldo`] = (u.saldo || 0) + val;
+            db.ref().update(updates).then(() => ntf("Transação Atualizada!"));
         });
     }
 
     function alterarSaldo(tipo) {
-        let v = parseFloat(prompt("Valor:")); if(!v) return;
-        db.ref(`users/${selUser}`).once('value', s => {
-            let n = tipo === 'add' ? (s.val().saldo||0) + v : (s.val().saldo||0) - v;
-            db.ref(`users/${selUser}`).update({saldo: n}).then(()=>{ntf(); buscarUser();});
+        let v = parseFloat(prompt("Digite o valor para alterar o saldo:")); 
+        if(isNaN(v)) return;
+        db.ref(`users/${selUser}/saldo`).transaction(atual => (tipo === 'add' ? (atual || 0) + v : (atual || 0) - v)).then(() => { 
+            ntf("Saldo Modificado com Sucesso!"); 
+            buscarUser(); 
         });
     }
 
-    function mudarSenha() { let p = prompt("Nova Senha:"); if(p) db.ref(`users/${selUser}`).update({pass:p}).then(()=>{ntf(); buscarUser();}); }
-    function bloquear() { db.ref(`users/${selUser}`).update({status: 'Bloqueado'}).then(()=>{ntf(); buscarUser();}); }
-    function deletar() { if(confirm("Apagar conta?")) db.ref(`users/${selUser}`).remove().then(()=>{document.getElementById('user-box').style.display='none'; ntf();}); }
+    function mudarSenha() { 
+        let p = prompt("Defina a nova senha:"); 
+        if(p) db.ref(`users/${selUser}`).update({pass:p}).then(()=>{ ntf("Nova Senha Configurada!"); buscarUser(); }); 
+    }
+    
+    function toggleBloqueio() {
+        let novoStatus = selUserStatus === "Bloqueado" ? "Ativo" : "Bloqueado";
+        db.ref(`users/${selUser}`).update({status: novoStatus}).then(()=>{ 
+            ntf("Acesso do Usuário Atualizado!"); 
+            buscarUser(); 
+        });
+    }
+
+    function deletar() { 
+        if(confirm("ATENÇÃO: Deseja apagar esta conta para sempre?")) {
+            db.ref(`users/${selUser}`).remove().then(()=>{
+                document.getElementById('user-box').style.display='none'; 
+                ntf("Conta Removida do Banco de Dados!");
+            }); 
+        }
+    }
 </script>
 </body>
-                        </html>
+</html>
