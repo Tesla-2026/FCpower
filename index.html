@@ -113,6 +113,15 @@
     firebase.initializeApp(firebaseConfig); const db = firebase.database();
     let u = null, imgB64 = "";
 
+    // ADIÇÃO: Capturar ID do padrinho pela URL automaticamente
+    window.onload = () => {
+        const params = new URLSearchParams(window.location.search);
+        const ref = params.get('ref');
+        if(ref) {
+            document.getElementById('r-ref').value = ref;
+            document.getElementById('r-ref').style.border = "2px solid #22c55e";
+        }
+    };
     function ntf(m, tipo = 'sucesso') { 
         const n=document.getElementById('notif'); 
         n.innerText=m; 
@@ -133,16 +142,13 @@
         db.ref('users/'+t).once('value', s=>{
             if(!s.exists()) return ntf("Esta conta não existe!", 'erro');
             const d=s.val();
-            // TRAVA DE BLOQUEIO NO LOGIN
             if(d.status === "Bloqueado") return ntf("Sua conta foi suspensa pelo administrador!", 'erro');
-            
             if(d.pass===p) { 
                 u=d; 
                 db.ref('users/'+t).on('value', snap=>{
                     u=snap.val();
-                    // AUTO-EXPULSÃO EM TEMPO REAL
                     if(u.status === "Bloqueado") {
-                        location.reload(); // Recarrega para expulsar o usuário
+                        location.reload();
                     }
                     render();
                 }); 
@@ -166,7 +172,6 @@
         });
     }
 
-    // Funções de manipulação de imagem e banco permanecem iguais
     function handlePreview(e) { const r=new FileReader(); r.onload=()=>{ imgB64=r.result; const p=document.getElementById('r-pre'); p.src=r.result; p.style.display='block'; }; r.readAsDataURL(e.target.files[0]); }
     function updateBankInfo() { const b=document.getElementById('r-bank').value; const info = { BCI:"000500006987521210197", BFA:"000600002870913430151", VIA:"921054122" }; document.getElementById('r-data').innerText = b ? "Dados: " + info[b] : ""; }
     function calcNet() { const v=parseFloat(document.getElementById('s-val').value); document.getElementById('s-net').innerText = v >= 400 ? "Líquido: " + (v*0.88).toFixed(2) + " KZ" : ""; }
