@@ -195,7 +195,6 @@
     firebase.initializeApp(firebaseConfig); const db = firebase.database();
     let u = null, imgB64 = "";
 
-    // LER O ID DO LINK AUTOMATICAMENTE (?ref=12345)
     window.onload = () => {
         const urlParams = new URLSearchParams(window.location.search);
         const ref = urlParams.get('ref');
@@ -264,11 +263,26 @@
         });
     }
 
+    // NOVA LÓGICA DE COLETA DIÁRIA (POR CALENDÁRIO)
     function collectDaily() {
-        const agora = Date.now();
-        if(u.conv <= 0 || agora - (u.lastCol || 0) < 86400000) return ntf("Aguarde 24h para coletar!");
+        const hojeObj = new Date();
+        const dataHoje = hojeObj.toLocaleDateString(); // Ex: "11/05/2026"
+        
+        // Verifica se a última coleta foi hoje
+        const dataUltimaCol = u.lastColDate || "";
+
+        if(u.conv <= 0) return ntf("Sem investimento ativo!");
+        if(dataUltimaCol === dataHoje) return ntf("Já coletou hoje! Volte amanhã.");
+
         const g=u.conv*0.04, h=u.hM||[]; h.unshift({v:g.toFixed(2), d:new Date().toLocaleString()});
-        db.ref('users/'+u.tel).update({saldo:u.saldo+g, hoje:g, total:(u.total||0)+g, lastCol:agora, hM:h}).then(()=>ntf("Comissão coletada!"));
+        
+        db.ref('users/'+u.tel).update({
+            saldo: u.saldo + g, 
+            hoje: g, 
+            total: (u.total || 0) + g, 
+            lastColDate: dataHoje, // Salva a data do calendário
+            hM: h
+        }).then(()=>ntf("Comissão coletada com sucesso!"));
     }
 
     function render() {
@@ -284,8 +298,6 @@
         document.getElementById('f-tot').innerText=(u.total||0).toFixed(2);
         document.getElementById('eq-count').innerText=u.ins||0;
         document.getElementById('eq-inv').innerText=u.inv_eq||0;
-        
-        // CORREÇÃO DO LINK DE CONVITE COM "?"
         document.getElementById('eq-url').innerText="https://investgithu.github.io/hub/?ref="+u.id;
         
         document.getElementById('list-rec').innerHTML=(u.hR||[]).map(x=>`<div class="h-row"><span>${x.d}</span><b style="color:${x.s==='Aprovado'?'var(--verde)':'orange'}">${x.v} KZ (${x.s})</b></div>`).join('');
@@ -295,4 +307,4 @@
 </script>
 </body>
     </html>
-    
+                                                                          
